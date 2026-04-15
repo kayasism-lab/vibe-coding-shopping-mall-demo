@@ -1,0 +1,430 @@
+.search-page {
+  padding: 48px 32px 72px;
+}
+
+.search-page__hero {
+  max-width: 860px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.search-page__hero p,
+.search-page__section p {
+  margin: 0;
+  color: #9a7b68;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.search-page__hero h1 {
+  margin: 14px 0 10px;
+  font-size: clamp(17px, 2.4vw, 29px);
+  font-weight: 500;
+}
+
+.search-page__section h2 {
+  margin: 14px 0 10px;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 500;
+}
+
+.search-page__hero span {
+  display: block;
+  max-width: 720px;
+  margin: 0 auto;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.search-page__searchbar {
+  position: relative;
+  max-width: 720px;
+  margin: 28px auto 0;
+}
+
+.search-page__searchbar input {
+  width: 100%;
+  padding: 18px 56px 18px 20px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-sizing: border-box;
+  color: #111827;
+  font: inherit;
+}
+
+.search-page__searchbar input::placeholder {
+  color: #9ca3af;
+}
+
+.search-page__clear {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.08);
+  cursor: pointer;
+}
+
+.search-page__grid,
+.wishlist-page__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.search-page__card,
+.wishlist-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: inherit;
+}
+
+.search-page__media,
+.wishlist-page__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  aspect-ratio: 0.78;
+}
+
+.search-page__media img,
+.wishlist-page__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.search-page__card-body,
+.wishlist-page__card-body {
+  display: grid;
+  gap: 8px;
+}
+
+.search-page__card-body h3,
+.wishlist-page__card-body h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.search-page__card-body p,
+.wishlist-page__card-body p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.search-page__card-body strong,
+.wishlist-page__card-body strong {
+  font-size: 18px;
+}
+
+.search-page__wishlist,
+.wishlist-page__remove,
+.wishlist-page__cart {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.search-page__wishlist,
+.wishlist-page__remove {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: #111827;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.search-page__wishlist.is-active {
+  color: #fff;
+  background: #111827;
+}
+
+.search-page__section {
+  margin-bottom: 48px;
+}
+
+.search-page__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.search-page__chips button,
+.search-page__chips a {
+  padding: 12px 16px;
+  color: inherit;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.search-page__result-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 24px;
+}
+
+.search-page__result-meta {
+  display: block;
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.search-page__page-size {
+  min-width: 256px;
+  padding: 19px 22px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.95);
+  font: inherit;
+  font-size: 16px;
+  margin-left: auto;
+  padding-right: 58px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23111827' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 18px) 50%;
+}
+
+.search-page__error {
+  margin: 0 0 20px;
+  color: #b91c1c;
+  text-align: center;
+}
+
+.search-page__empty,
+.wishlist-page__empty,
+.not-found-page__card,
+.forgot-password-page__card {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 42px;
+  text-align: center;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.search-page__empty h2,
+.wishlist-page__empty h2,
+.not-found-page__card h1,
+.forgot-password-page__card h1 {
+  margin-top: 0;
+}
+
+.search-page__empty p,
+.wishlist-page__empty p,
+.not-found-page__card p,
+.forgot-password-page__card p {
+  color: #6b7280;
+  line-height: 1.7;
+}
+
+.search-page__empty a,
+.wishlist-page__empty a,
+.not-found-page__actions a,
+.forgot-password-page__actions a,
+.forgot-password-page__actions button,
+.wishlist-page__cart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 14px 22px;
+  color: #fff;
+  border-radius: 999px;
+  background: #111827;
+  text-decoration: none;
+}
+
+.search-page__pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.search-page__pagination button {
+  min-width: 42px;
+  padding: 10px 14px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  font: inherit;
+}
+
+.search-page__pagination button.is-active {
+  color: #fff;
+  background: #111827;
+}
+
+.search-page__pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.wishlist-page {
+  padding: 48px 32px 72px;
+}
+
+.wishlist-page__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.wishlist-page__header p {
+  margin: 0;
+  color: #9a7b68;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.wishlist-page__header h1 {
+  margin: 12px 0 0;
+  font-size: clamp(28px, 4vw, 44px);
+}
+
+.wishlist-page__meta {
+  color: #6b7280;
+}
+
+.wishlist-page__colors {
+  display: flex;
+  gap: 8px;
+}
+
+.wishlist-page__colors span {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 999px;
+}
+
+.wishlist-page__cart {
+  margin-top: 0;
+}
+
+.forgot-password-page,
+.not-found-page {
+  display: grid;
+  min-height: calc(100vh - 89px);
+  place-items: center;
+  padding: 48px 24px 72px;
+}
+
+.forgot-password-page__card form {
+  display: grid;
+  gap: 16px;
+  margin-top: 26px;
+  text-align: left;
+}
+
+.forgot-password-page__card label {
+  display: grid;
+  gap: 8px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.forgot-password-page__card input {
+  padding: 15px 16px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 18px;
+  background: #fff;
+  font: inherit;
+}
+
+.forgot-password-page__actions,
+.not-found-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.forgot-password-page__actions a,
+.not-found-page__actions a {
+  margin-top: 0;
+}
+
+.forgot-password-page__actions button {
+  margin-top: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.forgot-password-page__actions a:last-child,
+.not-found-page__actions a:last-child {
+  color: #111827;
+  background: rgba(17, 24, 39, 0.08);
+}
+
+@media (max-width: 1100px) {
+  .search-page__grid,
+  .wishlist-page__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .search-page,
+  .wishlist-page {
+    padding: 40px 20px 56px;
+  }
+
+  .search-page__grid,
+  .wishlist-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wishlist-page__header,
+  .search-page__result-header {
+    flex-direction: column;
+    align-items: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .search-page__grid,
+  .wishlist-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-page__empty,
+  .wishlist-page__empty,
+  .not-found-page__card,
+  .forgot-password-page__card {
+    padding: 32px 22px;
+  }
+}
