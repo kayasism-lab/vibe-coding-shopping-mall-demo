@@ -25,6 +25,12 @@ export function ProductPageContent({ product, relatedProducts, user, onLogout })
     : isAddToCartDisabled
       ? "사이즈를 선택해주세요"
       : "장바구니 담기";
+  const relatedCollectionLabel =
+    product.category2 === "Men"
+      ? "Men"
+      : product.category2 === "Accessories"
+        ? "Accessories"
+        : "Women";
 
   const handleAddToCart = () => {
     if (!primaryColor || !selectedSize) {
@@ -228,7 +234,7 @@ export function ProductPageContent({ product, relatedProducts, user, onLogout })
           <section className="product-page__related">
             <div className="product-page__related-header">
               <p>함께 보면 좋은 상품</p>
-              <h3>{product.category} 추천 셀렉션</h3>
+              <h3>{relatedCollectionLabel} 추천 셀렉션</h3>
             </div>
 
             <div className="product-page__related-grid">

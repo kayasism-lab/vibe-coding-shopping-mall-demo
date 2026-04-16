@@ -161,12 +161,17 @@ export const getProductsByCategorySlug = (items, slug) => {
 export const getCategoryHeroImage = (items, slug) =>
   items.find((category) => category.slug === slug)?.image || items[0]?.image || "";
 
-export const getRelatedProducts = (items, currentProduct) =>
-  items
-    .filter(
-      (product) =>
-        product.sku !== currentProduct.sku &&
-        product.category === currentProduct.category &&
-        product.category2 === currentProduct.category2
-    )
-    .slice(0, 4);
+export const getRelatedProducts = (items, currentProduct) => {
+  const sameCollectionProducts = items.filter(
+    (product) => product.sku !== currentProduct.sku && product.category2 === currentProduct.category2
+  );
+
+  const sameCategoryProducts = sameCollectionProducts.filter(
+    (product) => product.category === currentProduct.category
+  );
+  const otherCollectionProducts = sameCollectionProducts.filter(
+    (product) => product.category !== currentProduct.category
+  );
+
+  return [...sameCategoryProducts, ...otherCollectionProducts].slice(0, 4);
+};

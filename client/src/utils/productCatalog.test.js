@@ -33,10 +33,10 @@ describe("productCatalog utilities", () => {
     expect(getCategoryHeroImage(categories, "new")).toBe(categories[3].image);
   });
 
-  it("filters related products by both category and category2", () => {
+  it("returns related products from the same women or men collection first", () => {
     const relatedProducts = getRelatedProducts(products, products[0]);
 
-    expect(relatedProducts).toHaveLength(0);
+    expect(relatedProducts.map((product) => product.sku)).toEqual([3, 5, 7]);
     expect(relatedProducts.some((product) => product.sku === 6)).toBe(false);
   });
 });
