@@ -7,7 +7,8 @@ import CheckoutShippingStep from "../components/checkout/CheckoutShippingStep";
 import CheckoutPaymentStep from "../components/checkout/CheckoutPaymentStep";
 import { useCart } from "../context/CartContext";
 import { useOrders } from "../context/OrderContext";
-import { formatKrw } from "../utils/currency";
+import { formatKrw, parseKrwAmount } from "../utils/currency";
+import { getCheckoutTotal, getShippingCost } from "../utils/pricing";
 import "./CheckoutPage.css";
 
 function CheckoutPage({ user, onLogout }) {
@@ -23,10 +24,8 @@ function CheckoutPage({ user, onLogout }) {
     deliveryNote: "",
   });
 
-  // 배송비: 5만원 이상 무료
-  const shippingCost = totalPrice >= 50000 ? 0 : 3000;
-  const tax = totalPrice * 0.1;
-  const finalTotal = totalPrice + shippingCost + tax;
+  const shippingCost = getShippingCost(totalPrice);
+  const finalTotal = getCheckoutTotal(totalPrice);
 
   // 장바구니가 비어 있으면 장바구니 페이지로 이동
   if (items.length === 0) {
@@ -36,7 +35,7 @@ function CheckoutPage({ user, onLogout }) {
   // 토스 결제창에 표시할 주문명 생성
   const orderName =
     items.length > 1
-      ? `${items[0].product.name} 외 ${items.length - 1}건`
+      ? `${items[0]?.product?.name || "주문"} 외 ${items.length - 1}건`
       : items[0]?.product?.name || "주문";
 
   return (
@@ -103,7 +102,7 @@ function CheckoutPage({ user, onLogout }) {
                     </span>
                     <span>수량: {item.quantity}</span>
                   </div>
-                  <strong>{formatKrw(Number(item.product.price) * item.quantity)}</strong>
+                  <strong>{formatKrw(parseKrwAmount(item.product.price) * item.quantity)}</strong>
                 </article>
               ))}
             </div>
@@ -114,10 +113,6 @@ function CheckoutPage({ user, onLogout }) {
             <div className="checkout-page__summary-line">
               <span>배송비</span>
               <strong>{shippingCost === 0 ? "무료" : formatKrw(shippingCost)}</strong>
-            </div>
-            <div className="checkout-page__summary-line">
-              <span>세금 (10%)</span>
-              <strong>{formatKrw(tax)}</strong>
             </div>
             <div className="checkout-page__summary-total">
               <span>총 결제 금액</span>

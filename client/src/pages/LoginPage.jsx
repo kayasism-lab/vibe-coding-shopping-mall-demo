@@ -194,6 +194,10 @@ function LoginPage({ onBackToStore, onForgotPassword, onSignup, onLoginSuccess }
               회원가입
             </button>
           </p>
+          <div className="login-demo-account">
+            <p>테스트 계정정보</p>
+            <p className="login-demo-account-credential">guest@gmail.com/!1234qwer</p>
+          </div>
         </div>
 
         <div className="login-visual" aria-hidden="true">

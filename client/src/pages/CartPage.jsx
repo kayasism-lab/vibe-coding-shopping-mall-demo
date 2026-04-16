@@ -3,17 +3,17 @@ import CartSidebar from "../components/store/CartSidebar";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useCart } from "../context/CartContext";
-import { formatKrw } from "../utils/currency";
+import { formatKrw, parseKrwAmount } from "../utils/currency";
+import { getCheckoutTotal, getShippingCost, SHIPPING_THRESHOLD } from "../utils/pricing";
 import "./CartPage.css";
-
-/** 무료배송 기준 (원) */
-const SHIPPING_THRESHOLD = 50000;
 
 function CartPage({ user, onLogout }) {
   const navigate = useNavigate();
   const { items, removeItem, totalItems, totalPrice, updateQuantity } = useCart();
   const amountToFreeShipping = Math.max(0, SHIPPING_THRESHOLD - totalPrice);
   const shippingProgress = Math.min(100, (totalPrice / SHIPPING_THRESHOLD) * 100);
+  const shippingCost = getShippingCost(totalPrice);
+  const estimatedTotal = getCheckoutTotal(totalPrice);
 
   return (
     <div className="store-shell">
@@ -103,7 +103,7 @@ function CartPage({ user, onLogout }) {
                           </button>
                         </div>
 
-                        <strong>{formatKrw(Number(item.product.price) * item.quantity)}</strong>
+                        <strong>{formatKrw(parseKrwAmount(item.product.price) * item.quantity)}</strong>
                       </div>
                     </div>
                   </article>
@@ -119,15 +119,11 @@ function CartPage({ user, onLogout }) {
               </div>
               <div className="cart-page__summary-line">
                 <span>배송비</span>
-                <strong>{amountToFreeShipping > 0 ? "결제 시 계산" : "무료"}</strong>
-              </div>
-              <div className="cart-page__summary-line">
-                <span>세금</span>
-                <strong>결제 시 계산</strong>
+                <strong>{shippingCost === 0 ? "무료" : formatKrw(shippingCost)}</strong>
               </div>
               <div className="cart-page__summary-total">
                 <span>예상 결제 금액</span>
-                <strong>{formatKrw(totalPrice)}</strong>
+                <strong>{formatKrw(estimatedTotal)}</strong>
               </div>
 
               <button

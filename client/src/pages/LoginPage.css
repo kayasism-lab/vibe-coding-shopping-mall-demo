@@ -194,6 +194,25 @@
   font-size: 13px;
 }
 
+.login-demo-account {
+  margin-top: 12px;
+  width: var(--login-form-width);
+  max-width: 100%;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.login-demo-account p {
+  margin: 0;
+}
+
+.login-demo-account-credential {
+  margin-top: 16px;
+  color: #111827;
+  font-weight: 600;
+}
+
 .inline-link-button {
   border: none;
   background: transparent;
@@ -262,7 +281,8 @@
   .login-form,
   .login-error,
   .login-submit,
-  .signup-link-row {
+  .signup-link-row,
+  .login-demo-account {
     width: 100%;
     max-width: 100%;
   }

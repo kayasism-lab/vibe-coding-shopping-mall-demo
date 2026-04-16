@@ -528,14 +528,19 @@
   border: 1px solid rgba(17, 24, 39, 0.12);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.7);
+  box-sizing: border-box;
   font-size: 15px;
 }
 
 .newsletter-form button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 28px;
   border-radius: 18px;
   color: #fff;
   background: #111827;
+  box-sizing: border-box;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -620,10 +625,21 @@
 @media (max-width: 860px) {
   .section-heading--inline,
   .intro-strip,
-  .newsletter-form,
   .store-footer__links {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .newsletter-form button {
+    min-height: 52px;
+    padding: 14px 18px;
   }
 
   .hero-section__content,
@@ -734,5 +750,16 @@
   .newsletter-form input,
   .newsletter-form button {
     width: 100%;
+  }
+
+  .newsletter-form input {
+    min-height: 56px;
+    padding: 16px 18px;
+  }
+
+  .newsletter-form button {
+    min-height: 52px;
+    font-size: 13px;
+    letter-spacing: 0.12em;
   }
 }

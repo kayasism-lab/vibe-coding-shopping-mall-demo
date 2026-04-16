@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { parseKrwAmount } from "../utils/currency";
 
 const CART_STORAGE_KEY_PREFIX = "moonCartItems";
 const GUEST_CART_KEY = `${CART_STORAGE_KEY_PREFIX}:guest`;
@@ -105,10 +106,7 @@ export function CartProvider({ children, userKey = "" }) {
   };
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce(
-    (sum, item) => sum + Number.parseFloat(item.product.price) * item.quantity,
-    0
-  );
+  const totalPrice = items.reduce((sum, item) => sum + parseKrwAmount(item.product.price) * item.quantity, 0);
 
   const value = {
     items,
