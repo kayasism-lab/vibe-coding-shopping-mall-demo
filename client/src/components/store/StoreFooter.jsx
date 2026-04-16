@@ -1,7 +1,12 @@
+import React from "react";
 import { footerColumns } from "../../data/catalog";
 import "./store.css";
 
 function StoreFooter() {
+  const handleComingSoonClick = (label) => {
+    window.alert(`${label} 페이지는 준비 중입니다.`);
+  };
+
   return (
     <footer className="store-footer">
       <div className="store-footer__brand">
@@ -14,9 +19,9 @@ function StoreFooter() {
           <div key={column.title}>
             <h4>{column.title}</h4>
             {column.links.map((link) => (
-              <a href="#top" key={link}>
+              <button key={link} type="button" onClick={() => handleComingSoonClick(link)}>
                 {link}
-              </a>
+              </button>
             ))}
           </div>
         ))}

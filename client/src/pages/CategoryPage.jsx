@@ -8,6 +8,7 @@ import {
   categories,
   categoryMeta,
 } from "../data/catalog";
+import { getCategoryHeroImage } from "../utils/productCatalog";
 import { formatKrw } from "../utils/currency";
 import "./CategoryPage.css";
 
@@ -59,8 +60,7 @@ function CategoryPage({ user, onLogout }) {
   }
 
   const categoryFilters = [...new Set(availableProducts.map((product) => product.category))];
-  const heroImage =
-    categories.find((category) => category.title.toLowerCase() === slug)?.image || categories[0].image;
+  const heroImage = getCategoryHeroImage(categories, slug);
 
   const toggleCategory = (categoryName) => {
     setSelectedCategories((currentCategories) =>

@@ -72,7 +72,7 @@ function StoreHeader({ user, onLogout }) {
         <StoreNavigation className="store-nav store-nav--desktop" />
 
         <div className="store-branding">
-          <span className="store-branding__eyebrow">달빛공방</span>
+          <span className="store-branding__eyebrow">달빛처럼 변하지않는 우아함</span>
           <Link className="store-brand-link" to="/">
             <h1>Moon Atelier</h1>
           </Link>

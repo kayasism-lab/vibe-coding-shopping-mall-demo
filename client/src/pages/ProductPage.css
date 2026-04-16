@@ -198,6 +198,13 @@
   margin-top: 8px;
 }
 
+.product-page__helper-text {
+  margin: 10px 0 0;
+  color: #9a3412;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .product-page__wishlist-button {
   min-width: 180px;
   margin-top: 12px;
@@ -213,6 +220,8 @@
 
 .product-page__add-button:disabled {
   opacity: 0.5;
+  color: #f9fafb;
+  background: #6b7280;
   cursor: not-allowed;
   transform: none;
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
 import StoreFooter from "../components/store/StoreFooter";
@@ -6,10 +6,11 @@ import StoreHeader from "../components/store/StoreHeader";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../context/ProductContext";
 import { useWishlist } from "../context/WishlistContext";
+import { getRelatedProducts } from "../utils/productCatalog";
 import { formatKrw } from "../utils/currency";
 import "./ProductPage.css";
 
-function ProductPageContent({ product, relatedProducts, user, onLogout }) {
+export function ProductPageContent({ product, relatedProducts, user, onLogout }) {
   const navigate = useNavigate();
   const { addItem, setIsCartOpen } = useCart();
   const { isInWishlist, toggleItem } = useWishlist();
@@ -18,6 +19,12 @@ function ProductPageContent({ product, relatedProducts, user, onLogout }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+  const isAddToCartDisabled = !primaryColor || !selectedSize;
+  const addToCartButtonLabel = showAddedMessage
+    ? "장바구니에 담겼습니다"
+    : isAddToCartDisabled
+      ? "사이즈를 선택해주세요"
+      : "장바구니 담기";
 
   const handleAddToCart = () => {
     if (!primaryColor || !selectedSize) {
@@ -188,12 +195,15 @@ function ProductPageContent({ product, relatedProducts, user, onLogout }) {
               className={`product-page__add-button ${
                 showAddedMessage ? "product-page__add-button--success" : ""
               }`}
-              disabled={!primaryColor || !selectedSize}
+              disabled={isAddToCartDisabled}
               type="button"
               onClick={handleAddToCart}
             >
-              {showAddedMessage ? "장바구니에 담겼습니다" : "장바구니 담기"}
+              {addToCartButtonLabel}
             </button>
+            {isAddToCartDisabled ? (
+              <p className="product-page__helper-text">사이즈를 선택하면 장바구니에 담을 수 있습니다.</p>
+            ) : null}
 
             <button
               className="product-page__wishlist-button"
@@ -255,12 +265,7 @@ function ProductPage({ user, onLogout }) {
       return [];
     }
 
-    return products
-      .filter(
-        (catalogProduct) =>
-          catalogProduct.sku !== product.sku && catalogProduct.category === product.category
-      )
-      .slice(0, 4);
+    return getRelatedProducts(products, product);
   }, [product, products]);
 
   if (!product) {

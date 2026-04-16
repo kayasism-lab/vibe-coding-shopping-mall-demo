@@ -195,7 +195,8 @@ const getPaginatedProducts = async (req, res) => {
     }
 
     if (category && category.toLowerCase() !== "all") {
-      filters.category = category;
+      const categoryRegex = new RegExp(`^${escapeRegex(category)}$`, "i");
+      filters.$or = [{ category: categoryRegex }, { category2: categoryRegex }];
     }
 
     const total = await Product.countDocuments(filters);

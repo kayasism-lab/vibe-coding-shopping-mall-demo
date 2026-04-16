@@ -2,6 +2,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { products as fallbackProducts } from "../data/catalog";
 import { PRODUCTS_API_URL, getAuthorizationHeader } from "../utils/auth";
+import {
+  getProductsByCategorySlug as getProductsByCategorySlugFromCatalog,
+  localizeProduct,
+  matchesProductCategory,
+} from "../utils/productCatalog";
 
 const ProductContext = createContext(null);
 const PAGINATED_PRODUCTS_API_URL = `${PRODUCTS_API_URL}/paginated`;
@@ -89,11 +94,7 @@ const buildProductsPageFallback = ({ products, page, limit, query, category }) =
         )
       );
     })
-    .filter((product) =>
-      normalizedCategory && normalizedCategory.toLowerCase() !== "all"
-        ? product.category === normalizedCategory
-        : true
-    );
+    .filter((product) => matchesProductCategory(product, normalizedCategory));
 
   const total = filteredProducts.length;
   const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
@@ -110,7 +111,9 @@ const buildProductsPageFallback = ({ products, page, limit, query, category }) =
 };
 
 export function ProductProvider({ children }) {
-  const [products, setProducts] = useState(() => sortProducts(fallbackProducts).map(normalizeProduct));
+  const [products, setProducts] = useState(() =>
+    sortProducts(fallbackProducts).map((product) => localizeProduct(normalizeProduct(product)))
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -124,10 +127,12 @@ export function ProductProvider({ children }) {
         throw new Error(data?.message || "상품 목록을 불러오지 못했습니다.");
       }
 
-      setProducts(sortProducts(data.map(normalizeProduct)));
+      setProducts(sortProducts(data.map((product) => localizeProduct(normalizeProduct(product)))));
       setError("");
     } catch (fetchError) {
-      setProducts(sortProducts(fallbackProducts).map(normalizeProduct));
+      setProducts(
+        sortProducts(fallbackProducts).map((product) => localizeProduct(normalizeProduct(product)))
+      );
       setError(fetchError.message || "상품 목록을 불러오지 못했습니다.");
     } finally {
       setIsLoading(false);
@@ -144,31 +149,7 @@ export function ProductProvider({ children }) {
   );
 
   const getProductsByCategorySlug = useCallback(
-    (slug) => {
-      const normalized = String(slug || "").toLowerCase().trim();
-
-      if (normalized === "new") {
-        return products.filter((product) => product.isNew);
-      }
-
-      if (normalized === "all") {
-        return [...products];
-      }
-
-      if (normalized === "women") {
-        return products.filter((product) => product.category2 === "Women");
-      }
-
-      if (normalized === "men") {
-        return products.filter((product) => product.category2 === "Men");
-      }
-
-      if (normalized === "accessories") {
-        return products.filter((product) => product.category2 === "Accessories");
-      }
-
-      return products.filter((product) => product.category.toLowerCase() === normalized);
-    },
+    (slug) => getProductsByCategorySlugFromCatalog(products, slug),
     [products]
   );
 
@@ -203,7 +184,9 @@ export function ProductProvider({ children }) {
       const createdProduct = normalizeProduct(
         await requestProductMutation(PRODUCTS_API_URL, "POST", payload)
       );
-      setProducts((currentProducts) => sortProducts([...currentProducts, createdProduct]));
+      setProducts((currentProducts) =>
+        sortProducts([...currentProducts, localizeProduct(createdProduct)])
+      );
       return createdProduct;
     },
     [requestProductMutation]
@@ -217,7 +200,7 @@ export function ProductProvider({ children }) {
       setProducts((currentProducts) =>
         sortProducts(
           currentProducts.map((product) =>
-            product.sku === Number(productId) ? updatedProduct : product
+            product.sku === Number(productId) ? localizeProduct(updatedProduct) : product
           )
         )
       );
@@ -260,7 +243,7 @@ export function ProductProvider({ children }) {
         }
 
         return {
-          items: data.items.map(normalizeProduct),
+          items: data.items.map((product) => localizeProduct(normalizeProduct(product))),
           page: Number(data.page) || 1,
           limit: Number(data.limit) || limit,
           total: Number(data.total) || 0,

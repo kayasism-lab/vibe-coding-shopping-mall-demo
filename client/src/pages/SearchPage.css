@@ -26,7 +26,7 @@
 
 .search-page__section h2 {
   margin: 14px 0 10px;
-  font-size: clamp(28px, 4vw, 48px);
+  font-size: clamp(14px, 2vw, 24px);
   font-weight: 500;
 }
 

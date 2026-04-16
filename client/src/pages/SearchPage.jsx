@@ -1,18 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useProducts } from "../context/ProductContext";
 import { useWishlist } from "../context/WishlistContext";
+import { searchProducts } from "../utils/productSearch";
 import { formatKrw } from "../utils/currency";
 import "./SearchPage.css";
 
-const recentSearches = ["Wool Coat", "Cashmere", "Leather Bag", "Blouse"];
+const recentSearches = ["코트", "캐시미어", "레더", "블라우스"];
 const popularCategories = [
-  { label: "New Arrivals", slug: "new" },
-  { label: "Outerwear", slug: "outerwear" },
-  { label: "Accessories", slug: "accessories" },
+  { label: "신상품", slug: "new" },
+  { label: "아우터", slug: "outerwear" },
+  { label: "액세서리", slug: "accessories" },
 ];
 const PAGE_SIZE_OPTIONS = [2, 5, 10, 20];
 
@@ -26,7 +27,7 @@ const getVisiblePageNumbers = (currentPage, totalPages) => {
 };
 
 function SearchPage({ user, onLogout }) {
-  const { fetchProductsPage } = useProducts();
+  const { products } = useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [debouncedQuery, setDebouncedQuery] = useState((searchParams.get("q") || "").trim());
@@ -34,13 +35,7 @@ function SearchPage({ user, onLogout }) {
   const [pageSize, setPageSize] = useState(
     () => Math.max(1, Number.parseInt(searchParams.get("limit") || "5", 10) || 5)
   );
-  const [results, setResults] = useState([]);
-  const [totalResults, setTotalResults] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const { isInWishlist, toggleItem } = useWishlist();
-  const hasMountedDebounce = useRef(false);
 
   useEffect(() => {
     const timerId = window.setTimeout(() => {
@@ -50,14 +45,13 @@ function SearchPage({ user, onLogout }) {
     return () => window.clearTimeout(timerId);
   }, [query]);
 
-  useEffect(() => {
-    if (hasMountedDebounce.current) {
-      setPage(1);
-      return;
-    }
-
-    hasMountedDebounce.current = true;
-  }, [debouncedQuery]);
+  const filteredProducts = useMemo(
+    () => searchProducts(products, debouncedQuery),
+    [debouncedQuery, products]
+  );
+  const totalResults = filteredProducts.length;
+  const totalPages = totalResults === 0 ? 0 : Math.ceil(totalResults / pageSize);
+  const currentPage = totalPages > 0 ? Math.min(page, totalPages) : 1;
 
   useEffect(() => {
     if (!debouncedQuery) {
@@ -67,70 +61,23 @@ function SearchPage({ user, onLogout }) {
 
     setSearchParams({
       q: debouncedQuery,
-      page: String(page),
+      page: String(currentPage),
       limit: String(pageSize),
     });
-  }, [debouncedQuery, page, pageSize, setSearchParams]);
+  }, [currentPage, debouncedQuery, pageSize, setSearchParams]);
 
-  useEffect(() => {
+  const results = useMemo(() => {
     if (!debouncedQuery) {
-      setResults([]);
-      setTotalResults(0);
-      setTotalPages(0);
-      setError("");
-      return;
+      return [];
     }
 
-    let isActive = true;
-
-    const requestSearchResults = async () => {
-      setIsLoading(true);
-
-      try {
-        const data = await fetchProductsPage({
-          page,
-          limit: pageSize,
-          query: debouncedQuery,
-        });
-
-        if (!isActive) {
-          return;
-        }
-
-        setResults(data.items);
-        setTotalResults(data.total);
-        setTotalPages(data.totalPages);
-        setError("");
-
-        if (data.page !== page) {
-          setPage(data.page);
-        }
-      } catch (requestError) {
-        if (!isActive) {
-          return;
-        }
-
-        setResults([]);
-        setTotalResults(0);
-        setTotalPages(0);
-        setError(requestError.message || "검색 결과를 불러오지 못했습니다.");
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void requestSearchResults();
-
-    return () => {
-      isActive = false;
-    };
-  }, [debouncedQuery, fetchProductsPage, page, pageSize]);
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredProducts.slice(startIndex, startIndex + pageSize);
+  }, [currentPage, debouncedQuery, filteredProducts, pageSize]);
 
   const visiblePages = useMemo(
-    () => getVisiblePageNumbers(page, totalPages),
-    [page, totalPages]
+    () => getVisiblePageNumbers(currentPage, totalPages),
+    [currentPage, totalPages]
   );
 
   return (
@@ -140,20 +87,29 @@ function SearchPage({ user, onLogout }) {
 
       <main className="search-page">
         <section className="search-page__hero">
-          <p>검색</p>
           <h1>원하는 스타일을 빠르게 찾아보세요</h1>
-          <span>상품명, 설명, 카테고리를 기준으로 현재 등록된 상품을 검색할 수 있습니다.</span>
+          <span>상품명, 카테고리, 상품 상세 정보를 포함해 콤마 기준 복수 조건 검색이 가능합니다.</span>
 
           <div className="search-page__searchbar">
             <input
               autoFocus
-              placeholder="원하는 상품명이나 검색어를 콤마로 구분해서 복수 조건검색이 가능합니다"
+              placeholder="예: 우먼, 코트 또는 액세서리, 가죽"
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setPage(1);
+              }}
             />
             {query ? (
-              <button className="search-page__clear" type="button" onClick={() => setQuery("")}>
+              <button
+                className="search-page__clear"
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setPage(1);
+                }}
+              >
                 ×
               </button>
             ) : null}
@@ -186,16 +142,7 @@ function SearchPage({ user, onLogout }) {
               </select>
             </section>
 
-            {error ? <p className="search-page__error">{error}</p> : null}
-
-            {isLoading ? (
-              <section className="search-page__empty">
-                <h2>검색 결과를 불러오는 중입니다.</h2>
-                <p>최신 등록 상품 기준으로 페이지를 계산하고 있습니다.</p>
-              </section>
-            ) : null}
-
-            {!isLoading && results.length > 0 ? (
+            {results.length > 0 ? (
               <section className="search-page__grid">
                 {results.map((product) => (
                   <article className="search-page__card" key={product.sku}>
@@ -228,23 +175,23 @@ function SearchPage({ user, onLogout }) {
               </section>
             ) : null}
 
-            {!isLoading && results.length === 0 ? (
+            {results.length === 0 ? (
               <section className="search-page__empty">
                 <h2>검색 결과가 없습니다.</h2>
-                <p>다른 검색어를 시도하거나 신상품 카테고리로 이동해보세요.</p>
+                <p>상품명, 카테고리, 상품 상세 정보를 조합해서 다시 검색해보세요.</p>
                 <Link to="/category/new">신상품 보러가기</Link>
               </section>
             ) : null}
 
-            {!isLoading && totalPages > 1 ? (
+            {totalPages > 1 ? (
               <nav className="search-page__pagination" aria-label="검색 결과 페이지 이동">
-                <button disabled={page === 1} type="button" onClick={() => setPage((currentPage) => currentPage - 1)}>
+                <button disabled={currentPage === 1} type="button" onClick={() => setPage((value) => value - 1)}>
                   이전
                 </button>
                 {visiblePages.map((pageNumber) => (
                   <button
                     key={pageNumber}
-                    className={pageNumber === page ? "is-active" : ""}
+                    className={pageNumber === currentPage ? "is-active" : ""}
                     type="button"
                     onClick={() => setPage(pageNumber)}
                   >
@@ -252,9 +199,9 @@ function SearchPage({ user, onLogout }) {
                   </button>
                 ))}
                 <button
-                  disabled={page === totalPages}
+                  disabled={currentPage === totalPages}
                   type="button"
-                  onClick={() => setPage((currentPage) => currentPage + 1)}
+                  onClick={() => setPage((value) => value + 1)}
                 >
                   다음
                 </button>
@@ -268,7 +215,14 @@ function SearchPage({ user, onLogout }) {
               <h2>자주 찾는 키워드</h2>
               <div className="search-page__chips">
                 {recentSearches.map((term) => (
-                  <button key={term} type="button" onClick={() => setQuery(term)}>
+                  <button
+                    key={term}
+                    type="button"
+                    onClick={() => {
+                      setQuery(term);
+                      setPage(1);
+                    }}
+                  >
                     {term}
                   </button>
                 ))}
