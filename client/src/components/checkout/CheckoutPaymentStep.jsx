@@ -62,6 +62,7 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
         orderId: createdOrder.id,
         orderName,
         customerName: shippingData.name,
+        ...(shippingData.email?.trim() ? { customerEmail: shippingData.email.trim() } : {}),
         successUrl: `${window.location.origin}/checkout/success`,
         failUrl: `${window.location.origin}/checkout/fail`,
       });

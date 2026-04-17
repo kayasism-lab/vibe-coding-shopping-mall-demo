@@ -29,8 +29,10 @@ function CheckoutSuccessPage({ user, onLogout }) {
   const orderId = searchParams.get("orderId");
   const amount = searchParams.get("amount");
 
-  // 결제 승인 상태: idle | loading | success | error
-  const [status, setStatus] = useState(paymentKey ? "loading" : "idle");
+  const hasCallbackParams = Boolean(paymentKey && orderId && amount);
+
+  // 결제 승인 상태: loading | success | error | invalid (콜백 없음·불완전 시 invalid)
+  const [status, setStatus] = useState(() => (hasCallbackParams ? "loading" : "invalid"));
   const [confirmedOrderId, setConfirmedOrderId] = useState(orderId || "");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -38,7 +40,7 @@ function CheckoutSuccessPage({ user, onLogout }) {
   const confirmedRef = useRef(false);
 
   useEffect(() => {
-    if (!paymentKey || !orderId || !amount) return;
+    if (!hasCallbackParams) return;
     if (confirmedRef.current) return;
     confirmedRef.current = true;
 
@@ -71,7 +73,30 @@ function CheckoutSuccessPage({ user, onLogout }) {
         setErrorMessage(err.message || "결제 승인에 실패했습니다.");
         setStatus("error");
       });
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [hasCallbackParams, paymentKey, orderId, amount]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 토스 콜백 파라미터가 불완전한 경우 (북마크 등 직접 접근)
+  if (status === "invalid") {
+    return (
+      <div className="store-shell">
+        <StoreHeader user={user} onLogout={onLogout} />
+        <CartSidebar />
+        <main className="checkout-success-page">
+          <div className="checkout-success-page__card">
+            <p>잘못된 접근</p>
+            <h1>결제 확인 정보가 없습니다.</h1>
+            <span>체크아웃을 진행한 뒤에만 이 페이지를 이용할 수 있습니다.</span>
+            <div className="checkout-success-page__actions">
+              <Link className="checkout-page__primary-button checkout-success-page__link" to="/cart">
+                장바구니로 돌아가기
+              </Link>
+            </div>
+          </div>
+        </main>
+        <StoreFooter />
+      </div>
+    );
+  }
 
   // 결제 승인 실패 화면
   if (status === "error") {

@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
-import { getAuthorizationHeader } from "../utils/auth";
+import { getAuthorizationHeader, ORDERS_API_URL } from "../utils/auth";
 import "./CheckoutPage.css";
 
 /**
@@ -29,7 +29,7 @@ function CheckoutFailPage({ user, onLogout }) {
 
     // 결제 실패/취소로 생성된 pending 주문을 cancelled 상태로 변경
     const authHeader = getAuthorizationHeader();
-    fetch(`/api/orders/${orderId}/status`, {
+    fetch(`${ORDERS_API_URL}/${orderId}/status`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
