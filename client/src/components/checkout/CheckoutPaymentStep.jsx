@@ -11,6 +11,24 @@ const PAYMENT_METHODS = [
 const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
 /**
+ * 토스 SDK 기본값: PC는 iframe, 모바일은 self(전체 전환). 모바일은 iframe 미지원.
+ * 데스크톱에서 self만 강제하면 결제창 동선이 달라질 수 있어, 모바일/좁은 화면에서만 self를 씀.
+ */
+function getPreferredPaymentWindowTarget() {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  const ua = navigator.userAgent || "";
+  const isMobileUa =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) ||
+    (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  const isNarrow = window.matchMedia("(max-width: 768px)").matches;
+
+  return isMobileUa || isNarrow ? "self" : undefined;
+}
+
+/**
  * 결제 단계 컴포넌트
  * Props:
  *   shippingData  - 배송 정보 (name, address 등)
@@ -67,6 +85,8 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
       const failUrl = `${window.location.origin}/checkout/fail`;
       const phoneDigits = digitsOnly(shippingData.phone);
 
+      const windowTarget = getPreferredPaymentWindowTarget();
+
       const baseRequest = {
         method: "CARD",
         amount: { currency: "KRW", value: amountValue },
@@ -75,8 +95,7 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
         successUrl,
         failUrl,
         customerName: shippingData.name,
-        // 모바일에서 iframe 결제창은 지원되지 않음 — 리다이렉트 방식과 함께 self 권장
-        windowTarget: "self",
+        ...(windowTarget ? { windowTarget } : {}),
         ...(shippingData.email?.trim() ? { customerEmail: shippingData.email.trim() } : {}),
         ...(phoneDigits.length >= 8 ? { customerMobilePhone: phoneDigits } : {}),
       };
