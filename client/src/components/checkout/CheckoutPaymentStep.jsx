@@ -11,8 +11,11 @@ const PAYMENT_METHODS = [
 const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
 /**
- * 토스 SDK 기본값: PC는 iframe, 모바일은 self(전체 전환). 모바일은 iframe 미지원.
- * 데스크톱에서 self만 강제하면 결제창 동선이 달라질 수 있어, 모바일/좁은 화면에서만 self를 씀.
+ * 토스 SDK: PC 기본은 iframe(통합창·간편결제 QR 등), 모바일만 self(전체 전환·앱 호출).
+ * 모바일은 iframe 미지원이라 self 필수.
+ *
+ * 화면 너비만으로 self를 켜면 데스크톱에서 창을 좁혔을 때도 모바일 동선(카카오페이 앱 안내 등)으로
+ * 갈 수 있어, User-Agent로 실제 모바일 기기일 때만 self를 씀.
  */
 function getPreferredPaymentWindowTarget() {
   if (typeof window === "undefined") {
@@ -23,9 +26,8 @@ function getPreferredPaymentWindowTarget() {
   const isMobileUa =
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) ||
     (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
-  const isNarrow = window.matchMedia("(max-width: 768px)").matches;
 
-  return isMobileUa || isNarrow ? "self" : undefined;
+  return isMobileUa ? "self" : undefined;
 }
 
 /**
