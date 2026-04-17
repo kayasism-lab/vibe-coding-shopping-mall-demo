@@ -127,11 +127,7 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
         type="submit"
         disabled={isProcessing}
       >
-        {isProcessing ? (
-          <span className="checkout-page__processing-text">결제 처리 중...</span>
-        ) : (
-          `${formatKrw(totalAmount)} 결제하기`
-        )}
+        {isProcessing ? "결제 처리 중..." : `${formatKrw(totalAmount)} 결제하기`}
       </button>
 
       {/* 오류 메시지 표시 */}

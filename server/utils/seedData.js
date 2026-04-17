@@ -14,21 +14,21 @@ const sampleCustomerConfigs = [
     name: "김민수",
     password: "Customer123!",
     contact: "01098765432",
-    addresses: [{ label: "집", address: "서울시 성동구 아차산로 100", order: 1 }],
+    addresses: [{ label: "집", address: "서울시 성동구 아차산로 100", order: 1, isDefault: true }],
   },
   {
     email: "yeonghui.lee@moonatelier.com",
     name: "이영희",
     password: "Customer123!",
     contact: "01087654321",
-    addresses: [{ label: "회사", address: "서울시 강남구 테헤란로 212", order: 1 }],
+    addresses: [{ label: "회사", address: "서울시 강남구 테헤란로 212", order: 1, isDefault: true }],
   },
   {
     email: "jiwon.park@moonatelier.com",
     name: "박지원",
     password: "Customer123!",
     contact: "01076543210",
-    addresses: [{ label: "집", address: "경기도 성남시 분당구 판교역로 235", order: 1 }],
+    addresses: [{ label: "집", address: "경기도 성남시 분당구 판교역로 235", order: 1, isDefault: true }],
   },
 ];
 
@@ -184,6 +184,22 @@ const ensureSampleCustomers = async () => {
   return users;
 };
 
+const ensureDefaultAddresses = async () => {
+  const userIds = await Address.distinct("userId");
+
+  for (const userId of userIds) {
+    const defaultAddress = await Address.findOne({ userId, isDefault: true }).select("_id").lean();
+    if (defaultAddress) {
+      continue;
+    }
+
+    const firstAddress = await Address.findOne({ userId }).sort({ order: 1, createdAt: 1 }).select("_id").lean();
+    if (firstAddress) {
+      await Address.findByIdAndUpdate(firstAddress._id, { isDefault: true });
+    }
+  }
+};
+
 const buildOrderItem = (product, overrides = {}) => ({
   productId: product.sku,
   productName: product.name,
@@ -320,6 +336,7 @@ const ensureSeedData = async () => {
   await ensureEditorialClosingCta();
   await ensureAdminUser();
   const customers = await ensureSampleCustomers();
+  await ensureDefaultAddresses();
   await ensureSampleOrders(customers);
 };
 

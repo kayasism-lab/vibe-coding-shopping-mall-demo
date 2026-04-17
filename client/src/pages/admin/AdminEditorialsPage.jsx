@@ -1,7 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { editorialHomeOrder } from "../../data/editorials";
 import { useEditorials } from "../../context/EditorialContext";
 import "./AdminPages.css";
+
+const sortEditorialsByHomeOrder = (items) => {
+  const orderMap = new Map(editorialHomeOrder.map((slug, index) => [slug, index]));
+  return [...items].sort((first, second) => {
+    const firstOrder = orderMap.has(first.slug) ? orderMap.get(first.slug) : Number.MAX_SAFE_INTEGER;
+    const secondOrder = orderMap.has(second.slug) ? orderMap.get(second.slug) : Number.MAX_SAFE_INTEGER;
+    if (firstOrder !== secondOrder) {
+      return firstOrder - secondOrder;
+    }
+    return first.title.localeCompare(second.title, "ko");
+  });
+};
 
 function AdminEditorialsPage() {
   const { deleteEditorial, fetchAdminEditorials } = useEditorials();
@@ -13,7 +26,7 @@ function AdminEditorialsPage() {
     const run = async () => {
       try {
         setIsLoading(true);
-        setItems(await fetchAdminEditorials());
+        setItems(sortEditorialsByHomeOrder(await fetchAdminEditorials()));
         setError("");
       } catch (loadError) {
         setError(loadError.message || "에디토리얼 목록을 불러오지 못했습니다.");
@@ -31,7 +44,7 @@ function AdminEditorialsPage() {
     }
 
     await deleteEditorial(id);
-    setItems((current) => current.filter((item) => item._id !== id));
+    setItems((current) => sortEditorialsByHomeOrder(current.filter((item) => item._id !== id)));
   };
 
   return (

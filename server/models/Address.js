@@ -26,6 +26,11 @@ const addressSchema = new Schema(
       required: true,
       min: 1,
     },
+    // 사용자별 기본 배송지 여부 (1인 1기본)
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -109,7 +109,7 @@ const normalizeEditorialPayload = (payload) => ({
   format: sanitizeText(payload.format),
   status: sanitizeText(payload.status) || "draft",
   heroImage: sanitizeText(payload.heroImage),
-  heroImageAlt: sanitizeText(payload.heroImageAlt),
+  heroImageAlt: sanitizeText(payload.heroImageAlt) || sanitizeText(payload.title),
   intro: sanitizeText(payload.intro),
   eventBlocks: sanitizeEventBlocks(payload.eventBlocks),
   closingCtaLabel: sanitizeText(payload.closingCtaLabel),

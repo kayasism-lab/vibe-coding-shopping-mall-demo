@@ -2,6 +2,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localho
 
 export const LOGIN_API_URL = `${API_BASE_URL}/api/auth/login`;
 export const AUTH_ME_API_URL = `${API_BASE_URL}/api/auth/me`;
+// 비밀번호 변경 엔드포인트
+export const AUTH_PASSWORD_API_URL = `${API_BASE_URL}/api/auth/password`;
 export const USERS_API_URL = `${API_BASE_URL}/api/users`;
 export const ORDERS_API_URL = `${API_BASE_URL}/api/orders`;
 export const PAYMENTS_API_URL = `${API_BASE_URL}/api/payments`;

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import AccountSidebar from "../components/account/AccountSidebar";
+import { findDefaultAddress } from "../utils/addressUtils";
 import CartSidebar from "../components/store/CartSidebar";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
@@ -8,7 +10,6 @@ import { formatKrw } from "../utils/currency";
 import { USERS_API_URL, getStoredSession } from "../utils/auth";
 import "./AccountPage.css";
 
-const getPrimaryAddress = (user) => user?.addresses?.[0] || null;
 const getUserKey = (user) => user?._id || user?.email || null;
 
 function AccountPage({ user, onLogout, onUserUpdate }) {
@@ -28,7 +29,8 @@ function AccountPage({ user, onLogout, onUserUpdate }) {
   }, [user]);
 
   const orders = useMemo(() => getUserOrders(getUserKey(user)), [getUserOrders, user]);
-  const primaryAddress = getPrimaryAddress(user);
+  // 기본 배송지 우선, 없으면 첫 번째 주소를 표시
+  const primaryAddress = findDefaultAddress(user?.addresses || []);
 
   if (!user) {
     return <Navigate replace to="/login" />;
@@ -92,24 +94,7 @@ function AccountPage({ user, onLogout, onUserUpdate }) {
         </div>
 
         <div className="account-page__layout">
-          <aside className="account-page__sidebar">
-            <div className="account-page__profile-card">
-              <strong>{user.name}</strong>
-              <span>{user.email}</span>
-            </div>
-
-            <nav className="account-page__nav">
-              <Link to="/account">프로필</Link>
-              <Link to="/account/orders">주문내역</Link>
-              <Link to="/account/wishlist">위시리스트</Link>
-              <Link to="/cart">장바구니</Link>
-              {user.userType === "admin" ? <Link to="/admin">어드민</Link> : null}
-            </nav>
-
-            <button className="account-page__logout" type="button" onClick={onLogout}>
-              로그아웃
-            </button>
-          </aside>
+          <AccountSidebar onLogout={onLogout} user={user} />
 
           <section className="account-page__content">
             <article className="account-page__panel">
@@ -187,19 +172,45 @@ function AccountPage({ user, onLogout, onUserUpdate }) {
             <article className="account-page__panel">
               <div className="account-page__panel-header">
                 <div>
+                  <p>보안</p>
+                  <h2>비밀번호</h2>
+                </div>
+                <Link className="account-page__text-link" to="/account/password">
+                  비밀번호 변경
+                </Link>
+              </div>
+              <p className="account-page__muted">
+                비밀번호를 정기적으로 변경하면 계정을 더 안전하게 보호할 수 있습니다.
+              </p>
+            </article>
+
+            <article className="account-page__panel">
+              <div className="account-page__panel-header">
+                <div>
                   <p>저장된 주소</p>
                   <h2>기본 배송지</h2>
                 </div>
+                <Link className="account-page__text-link" to="/account/addresses">
+                  배송지 관리
+                </Link>
               </div>
 
               {primaryAddress ? (
                 <div className="account-page__address">
-                  <strong>{primaryAddress.label || "기본 배송지"}</strong>
+                  <strong>
+                    {primaryAddress.label || "기본 배송지"}
+                    {primaryAddress.isDefault && (
+                      <span className="address-manage__badge">기본</span>
+                    )}
+                  </strong>
                   <span>{primaryAddress.address}</span>
                 </div>
               ) : (
                 <p className="account-page__muted">
-                  저장된 주소가 없습니다. 다음 주문에서 배송지를 입력하면 다시 확인할 수 있습니다.
+                  저장된 주소가 없습니다.{" "}
+                  <Link className="account-page__text-link" to="/account/addresses">
+                    배송지를 등록하세요.
+                  </Link>
                 </p>
               )}
             </article>

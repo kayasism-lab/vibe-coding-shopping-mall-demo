@@ -9,6 +9,8 @@ import { clearStoredSession, getStoredSession, persistSession } from "./utils/au
 import AdminLayout from "./components/admin/AdminLayout";
 
 const AccountPage = lazy(() => import("./pages/AccountPage"));
+const AddressManagePage = lazy(() => import("./pages/AddressManagePage"));
+const PasswordChangePage = lazy(() => import("./pages/PasswordChangePage"));
 const AdminCustomersPage = lazy(() => import("./pages/admin/AdminCustomersPage"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
 const AdminEditorialFormPage = lazy(() => import("./pages/admin/AdminEditorialFormPage"));
@@ -133,6 +135,25 @@ function App() {
                     user={authSession?.user || null}
                     onLogout={handleLogout}
                     onUserUpdate={handleUserUpdate}
+                  />
+                }
+              />
+              <Route
+                path="/account/addresses"
+                element={
+                  <AddressManagePage
+                    user={authSession?.user || null}
+                    onLogout={handleLogout}
+                    onUserUpdate={handleUserUpdate}
+                  />
+                }
+              />
+              <Route
+                path="/account/password"
+                element={
+                  <PasswordChangePage
+                    user={authSession?.user || null}
+                    onLogout={handleLogout}
                   />
                 }
               />

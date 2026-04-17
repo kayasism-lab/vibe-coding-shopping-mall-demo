@@ -14,6 +14,7 @@ const userFields = [
   "userType",
 ];
 const addressFields = ["label", "address", "order"];
+const addressFieldsWithDefault = [...addressFields, "isDefault"];
 
 // 요청 본문에서 허용된 필드만 골라낸다.
 const pickFields = (source, fields) =>
@@ -27,6 +28,14 @@ const pickFields = (source, fields) =>
 
 const isValidId = (value) => mongoose.Types.ObjectId.isValid(value);
 const SALT_ROUNDS = 10;
+
+// 지정한 주소만 기본 배송지로 유지하고 나머지는 모두 해제한다.
+const ensureSingleDefault = async (userId, defaultAddressId) => {
+  await Address.updateMany(
+    { userId, _id: { $ne: defaultAddressId } },
+    { $set: { isDefault: false } }
+  );
+};
 
 // Mongoose validation 에러를 사용자 메시지로 정리한다.
 const getValidationMessage = (error) => {
@@ -47,8 +56,9 @@ const getUserWithAddresses = async (userId) => {
     return null;
   }
 
+  // 기본 배송지를 맨 앞에, 이후 order 오름차순으로 정렬
   const addresses = await Address.find({ userId })
-    .sort({ order: 1, createdAt: 1 })
+    .sort({ isDefault: -1, order: 1, createdAt: 1 })
     .lean();
 
   return { ...user, addresses };
@@ -87,7 +97,7 @@ const getUsers = async (req, res) => {
     const users = await User.find().select("-password").sort({ createdAt: -1 }).lean();
     const userIds = users.map((user) => user._id);
     const addresses = await Address.find({ userId: { $in: userIds } })
-      .sort({ order: 1, createdAt: 1 })
+      .sort({ isDefault: -1, order: 1, createdAt: 1 })
       .lean();
 
     const addressesByUserId = addresses.reduce((result, address) => {
@@ -146,13 +156,22 @@ const createUser = async (req, res) => {
     user = await User.create(userPayload);
 
     if (addressPayloads.length > 0) {
-      const preparedAddresses = addressPayloads.map((address) => ({
-        ...pickFields(address, addressFields),
-        userId: user._id,
-      }));
+      const preparedAddresses = addressPayloads.map((address, index) => {
+        const payload = {
+          ...pickFields(address, addressFields),
+          userId: user._id,
+        };
+
+        payload.isDefault = index === 0;
+
+        return payload;
+      });
 
       for (const address of preparedAddresses) {
-        await Address.create(address);
+        const createdAddress = await Address.create(address);
+        if (createdAddress.isDefault) {
+          await ensureSingleDefault(user._id, createdAddress._id);
+        }
       }
     }
 
@@ -202,7 +221,7 @@ const updateUser = async (req, res) => {
     }
 
     const addresses = await Address.find({ userId })
-      .sort({ order: 1, createdAt: 1 })
+      .sort({ isDefault: -1, order: 1, createdAt: 1 })
       .lean();
 
     res.json({ ...updatedUser, addresses });
@@ -258,7 +277,7 @@ const getUserAddresses = async (req, res) => {
     }
 
     const addresses = await Address.find({ userId })
-      .sort({ order: 1, createdAt: 1 })
+      .sort({ isDefault: -1, order: 1, createdAt: 1 })
       .lean();
 
     res.json(addresses);
@@ -268,6 +287,7 @@ const getUserAddresses = async (req, res) => {
 };
 
 // 특정 사용자에게 새 주소를 추가한다.
+// 첫 번째 주소이거나 isDefault=true 요청 시 기본 배송지로 설정하고 기존 기본을 해제한다.
 const createUserAddress = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -282,10 +302,19 @@ const createUserAddress = async (req, res) => {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
-    const address = await Address.create({
-      ...pickFields(req.body, addressFields),
-      userId,
-    });
+    const existingCount = await Address.countDocuments({ userId });
+    const payload = { ...pickFields(req.body, addressFieldsWithDefault), userId };
+
+    // 첫 번째 주소는 항상 기본 배송지로 지정
+    if (existingCount === 0 || payload.isDefault) {
+      payload.isDefault = true;
+    }
+
+    const address = await Address.create(payload);
+
+    if (address.isDefault) {
+      await ensureSingleDefault(userId, address._id);
+    }
 
     res.status(201).json(address);
   } catch (error) {
@@ -294,6 +323,7 @@ const createUserAddress = async (req, res) => {
 };
 
 // 특정 사용자의 주소 한 건을 수정한다.
+// isDefault=true 요청 시 다른 주소의 기본 배송지 플래그를 해제한다.
 const updateUserAddress = async (req, res) => {
   try {
     const { userId, addressId } = req.params;
@@ -302,16 +332,16 @@ const updateUserAddress = async (req, res) => {
       return res.status(400).json({ message: "유효하지 않은 ID입니다." });
     }
 
+    const updates = pickFields(req.body, addressFields);
     const updatedAddress = await Address.findOneAndUpdate(
       { _id: addressId, userId },
-      pickFields(req.body, addressFields),
+      updates,
       { new: true, runValidators: true }
     ).lean();
 
     if (!updatedAddress) {
       return res.status(404).json({ message: "주소를 찾을 수 없습니다." });
     }
-
     res.json(updatedAddress);
   } catch (error) {
     res.status(400).json({ message: "주소 수정에 실패했습니다.", error: error.message });
@@ -319,6 +349,7 @@ const updateUserAddress = async (req, res) => {
 };
 
 // 특정 사용자의 주소 한 건을 삭제한다.
+// 기본 배송지를 삭제하면 다음 주소를 자동으로 기본 배송지로 승격한다.
 const deleteUserAddress = async (req, res) => {
   try {
     const { userId, addressId } = req.params;
@@ -333,9 +364,47 @@ const deleteUserAddress = async (req, res) => {
       return res.status(404).json({ message: "주소를 찾을 수 없습니다." });
     }
 
+    // 삭제된 주소가 기본 배송지였다면 남은 첫 번째 주소를 기본으로 승격
+    if (deletedAddress.isDefault) {
+      const nextAddress = await Address.findOne({ userId })
+        .sort({ order: 1, createdAt: 1 })
+        .lean();
+
+      if (nextAddress) {
+        await Address.findByIdAndUpdate(nextAddress._id, { isDefault: true });
+      }
+    }
+
     res.json({ message: "주소가 삭제되었습니다.", address: deletedAddress });
   } catch (error) {
     res.status(500).json({ message: "주소 삭제에 실패했습니다.", error: error.message });
+  }
+};
+
+// 특정 주소를 기본 배송지로 지정하고 사용자의 다른 주소는 모두 해제한다.
+const setDefaultUserAddress = async (req, res) => {
+  try {
+    const { userId, addressId } = req.params;
+
+    if (!isValidId(userId) || !isValidId(addressId)) {
+      return res.status(400).json({ message: "유효하지 않은 ID입니다." });
+    }
+
+    const address = await Address.findOneAndUpdate(
+      { _id: addressId, userId },
+      { isDefault: true },
+      { new: true }
+    ).lean();
+
+    if (!address) {
+      return res.status(404).json({ message: "주소를 찾을 수 없습니다." });
+    }
+
+    await ensureSingleDefault(userId, addressId);
+
+    res.json(address);
+  } catch (error) {
+    res.status(500).json({ message: "기본 배송지 설정에 실패했습니다.", error: error.message });
   }
 };
 
@@ -349,4 +418,5 @@ module.exports = {
   createUserAddress,
   updateUserAddress,
   deleteUserAddress,
+  setDefaultUserAddress,
 };

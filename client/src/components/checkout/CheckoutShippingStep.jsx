@@ -1,49 +1,63 @@
-import { useState } from "react";
+import React, { useCallback, useState } from "react";
 import AddressPicker from "./AddressPicker";
 
 /**
  * 체크아웃 배송 정보 입력 단계 컴포넌트
  *
- * - 로그인 사용자: AddressPicker로 주소 선택 + 이름/이메일/연락처/배송메모 입력
- * - 비로그인 사용자: 전체 수동 입력 폼
+ * - 로그인 사용자: AddressPicker로 저장된 배송지 선택 (인라인 추가 불가)
+ *   배송지가 없으면 마이페이지 배송지 관리 링크를 표시하고 진행을 차단한다.
+ * - 비로그인 사용자: 배송지 별칭과 주소를 직접 입력하는 폼 제공
  */
 function CheckoutShippingStep({ shippingData, setShippingData, user, onSubmit }) {
-  // 로그인 사용자가 선택한 주소 상태
   const [selectedAddress, setSelectedAddress] = useState(null);
+  // 로그인 사용자가 주소 미선택 시 표시할 인라인 오류
+  const [addressError, setAddressError] = useState("");
 
-  // AddressPicker 주소 선택 시 shippingData에 자동 반영
-  const handleAddressSelect = (addr) => {
+  // AddressPicker에서 배송지를 선택하면 shippingData에 반영
+  const handleAddressSelect = useCallback((addr) => {
     setSelectedAddress(addr);
+    setAddressError("");
     setShippingData((cur) => ({
       ...cur,
       addressLabel: addr.label || "기본 배송지",
       address: addr.address || "",
     }));
-  };
+  }, [setShippingData]);
 
-  // shippingData 필드 단일 업데이트 헬퍼
   const updateField = (field) => (event) =>
     setShippingData((cur) => ({ ...cur, [field]: event.target.value }));
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    // 로그인 사용자는 반드시 배송지를 선택해야 진행 가능
+    if (user && !selectedAddress) {
+      setAddressError("배송지를 선택해주세요. 저장된 배송지가 없다면 배송지 관리에서 먼저 추가하세요.");
+      return;
+    }
     onSubmit();
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form id="checkout-shipping-form" onSubmit={handleSubmit}>
       <div className="checkout-page__section-header">
         <p>배송 정보</p>
         <h1>배송 정보를 입력해주세요</h1>
       </div>
 
-      {/* 로그인 사용자: AddressPicker로 주소 선택 */}
+      {/* 로그인 사용자: 저장된 배송지 목록에서 선택 */}
       {user && (
-        <AddressPicker
-          user={user}
-          selectedAddress={selectedAddress}
-          onSelectAddress={handleAddressSelect}
-        />
+        <>
+          <AddressPicker
+            user={user}
+            selectedAddress={selectedAddress}
+            onSelectAddress={handleAddressSelect}
+          />
+          {addressError && (
+            <p style={{ color: "#b91c1c", margin: "0 0 16px", fontSize: 14 }}>
+              {addressError}
+            </p>
+          )}
+        </>
       )}
 
       <div className="checkout-page__field-grid checkout-page__field-grid--two">
@@ -92,9 +106,6 @@ function CheckoutShippingStep({ shippingData, setShippingData, user, onSubmit })
         </label>
       </div>
 
-      <button className="checkout-page__primary-button" type="submit">
-        결제 단계로 이동
-      </button>
     </form>
   );
 }

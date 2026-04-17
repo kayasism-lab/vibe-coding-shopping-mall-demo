@@ -21,7 +21,7 @@ export const normalizeEditorialPayload = ({
   format: trim(formData.format),
   status: trim(formData.status),
   heroImage: trim(formData.heroImage),
-  heroImageAlt: trim(formData.heroImageAlt),
+  heroImageAlt: trim(formData.heroImageAlt) || trim(formData.title),
   intro: trim(formData.intro),
   eventBlocks: eventBlocks
     .map((item) => ({

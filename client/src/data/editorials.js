@@ -1,7 +1,7 @@
 export const editorialHomeOrder = [
-  "minimalism-of-light",
-  "spring-lookbook",
   "behind-the-story",
+  "spring-lookbook",
+  "minimalism-of-light",
 ];
 
 export const fallbackEditorials = [
