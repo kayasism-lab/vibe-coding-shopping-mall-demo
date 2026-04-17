@@ -11,7 +11,6 @@ import { useOrders } from "../context/OrderContext";
 import { formatKrw, parseKrwAmount } from "../utils/currency";
 import { getCheckoutTotal, getShippingCost } from "../utils/pricing";
 import "./CheckoutPage.css";
-import "./CheckoutStepSplit.css";
 
 function CheckoutPage({ user, onLogout }) {
   const { addOrder } = useOrders();
@@ -51,7 +50,7 @@ function CheckoutPage({ user, onLogout }) {
         </Link>
 
         {/* 단계 진행 표시 바 */}
-        <div className={`checkout-page__progress ${step === 2 ? "checkout-page__progress--step-two" : ""}`}>
+        <div className="checkout-page__progress">
           <div className={`checkout-page__step ${step >= 1 ? "is-active" : ""}`}>
             <span>{step > 1 ? "✓" : "1"}</span>
             <strong>배송</strong>
@@ -64,9 +63,8 @@ function CheckoutPage({ user, onLogout }) {
         </div>
 
         <div className="checkout-page__layout">
-          <section className={`checkout-page__form ${step === 2 ? "checkout-page__form--split" : ""}`}>
+          <section className="checkout-page__form">
             {step === 1 ? (
-              /* 배송 정보 입력 단계 */
               <CheckoutShippingStep
                 shippingData={shippingData}
                 setShippingData={setShippingData}
@@ -74,57 +72,15 @@ function CheckoutPage({ user, onLogout }) {
                 onSubmit={() => setStep(2)}
               />
             ) : (
-              <div className="checkout-page__step-two-layout">
-                <article className="checkout-page__step-card">
-                  <div className="checkout-page__section-header checkout-page__section-header--row">
-                    <div>
-                      <p>1 배송</p>
-                      <h1>배송 정보를 확인해주세요</h1>
-                    </div>
-                    <button className="checkout-page__text-button" type="button" onClick={() => setStep(1)}>
-                      수정하기
-                    </button>
-                  </div>
-
-                  <div className="checkout-page__shipping-review">
-                    <div>
-                      <span>배송지</span>
-                      <strong>{shippingData.addressLabel || "기본 배송지"}</strong>
-                      <p>{shippingData.address || "입력된 배송지가 없습니다."}</p>
-                    </div>
-                    <div>
-                      <span>받는 분</span>
-                      <strong>{shippingData.name || "-"}</strong>
-                    </div>
-                    <div>
-                      <span>연락처</span>
-                      <strong>{shippingData.phone || "-"}</strong>
-                    </div>
-                    <div>
-                      <span>이메일</span>
-                      <strong>{shippingData.email || "-"}</strong>
-                    </div>
-                    {shippingData.deliveryNote ? (
-                      <div className="checkout-page__shipping-review-note">
-                        <span>배송 메모</span>
-                        <p>{shippingData.deliveryNote}</p>
-                      </div>
-                    ) : null}
-                  </div>
-                </article>
-
-                <article className="checkout-page__step-card">
-                  <CheckoutPaymentStep
-                    shippingData={shippingData}
-                    user={user}
-                    totalAmount={finalTotal}
-                    orderName={orderName}
-                    items={items}
-                    onBack={() => setStep(1)}
-                    addOrder={addOrder}
-                  />
-                </article>
-              </div>
+              <CheckoutPaymentStep
+                shippingData={shippingData}
+                user={user}
+                totalAmount={finalTotal}
+                orderName={orderName}
+                items={items}
+                onBack={() => setStep(1)}
+                addOrder={addOrder}
+              />
             )}
           </section>
 
