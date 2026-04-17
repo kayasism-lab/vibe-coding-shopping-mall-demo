@@ -23,12 +23,6 @@ function isMobileUserAgent() {
 }
 
 /**
- * 항상 windowTarget: self (현재 탭에서 전체 전환).
- * iframe 통합창은 내부 뷰포트 폭이 좁아 토스 게이트가 isMobile=true(/mobile 경로)로 열리는 경우가 있음.
- * self면 뷰포트가 브라우저 전체 너비로 잡혀 PC에서 카카오페이 QR 등 데스크톱 동선이 나올 수 있음.
- */
-
-/**
  * 결제 단계 컴포넌트
  * Props:
  *   shippingData  - 배송 정보 (name, address 등)
@@ -86,6 +80,10 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
       const phoneDigits = digitsOnly(shippingData.phone);
 
       const mobileUa = isMobileUserAgent();
+      // 토스 문서: PC 기본 = iframe, 모바일 기본 = self(iframe 미지원).
+      // self를 PC에서도 강제하면 게이트가 /mobile?isMobile=true 쪽으로 잡히는 경우가 있음.
+      // 데스크톱은 iframe(기본), 실제 폰·태블릿만 self.
+      const windowTarget = mobileUa ? "self" : "iframe";
 
       const baseRequest = {
         method: "CARD",
@@ -95,9 +93,8 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
         successUrl,
         failUrl,
         customerName: shippingData.name,
-        windowTarget: "self",
+        windowTarget,
         ...(shippingData.email?.trim() ? { customerEmail: shippingData.email.trim() } : {}),
-        // 데스크톱 UA에서는 전화번호 미전달 — 간편결제 앱 유도 완화(로컬 테스트과 동일 요청에 가깝게)
         ...(mobileUa && phoneDigits.length >= 8 ? { customerMobilePhone: phoneDigits } : {}),
       };
 
