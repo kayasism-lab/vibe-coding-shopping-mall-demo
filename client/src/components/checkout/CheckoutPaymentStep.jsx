@@ -10,23 +10,23 @@ const PAYMENT_METHODS = [
 
 const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
-/**
- * 토스 SDK: PC는 iframe(통합창·데스크톱 간편결제 QR), 모바일은 self(전체 전환, iframe 미지원).
- * windowTarget / customerMobilePhone 조합이 간편결제 동선(앱 유도 vs QR)에 영향을 줄 수 있어
- * 데스크톱(iframe)에서는 customerMobilePhone을 넣지 않음 — 로컬에서 번호 없이 테스트할 때와 동일한 요청 형태.
- */
-function getPreferredPaymentWindowTarget() {
+function isMobileUserAgent() {
   if (typeof window === "undefined") {
-    return "iframe";
+    return false;
   }
 
   const ua = navigator.userAgent || "";
-  const isMobileUa =
+  return (
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) ||
-    (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
-
-  return isMobileUa ? "self" : "iframe";
+    (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1)
+  );
 }
+
+/**
+ * 항상 windowTarget: self (현재 탭에서 전체 전환).
+ * iframe 통합창은 내부 뷰포트 폭이 좁아 토스 게이트가 isMobile=true(/mobile 경로)로 열리는 경우가 있음.
+ * self면 뷰포트가 브라우저 전체 너비로 잡혀 PC에서 카카오페이 QR 등 데스크톱 동선이 나올 수 있음.
+ */
 
 /**
  * 결제 단계 컴포넌트
@@ -85,8 +85,7 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
       const failUrl = `${window.location.origin}/checkout/fail`;
       const phoneDigits = digitsOnly(shippingData.phone);
 
-      const windowTarget = getPreferredPaymentWindowTarget();
-      const isDesktopIframe = windowTarget === "iframe";
+      const mobileUa = isMobileUserAgent();
 
       const baseRequest = {
         method: "CARD",
@@ -96,10 +95,10 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
         successUrl,
         failUrl,
         customerName: shippingData.name,
-        windowTarget,
+        windowTarget: "self",
         ...(shippingData.email?.trim() ? { customerEmail: shippingData.email.trim() } : {}),
-        // 모바일(self)에서만 전화번호 전달 — PC(iframe)에서 넣으면 간편결제가 앱 호출 쪽으로 기울 수 있음
-        ...(!isDesktopIframe && phoneDigits.length >= 8 ? { customerMobilePhone: phoneDigits } : {}),
+        // 데스크톱 UA에서는 전화번호 미전달 — 간편결제 앱 유도 완화(로컬 테스트과 동일 요청에 가깝게)
+        ...(mobileUa && phoneDigits.length >= 8 ? { customerMobilePhone: phoneDigits } : {}),
       };
 
       // 공식 가이드와 동일한 통합결제창 옵션(useAppCardOnly 등 명시)
