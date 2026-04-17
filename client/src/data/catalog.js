@@ -38,18 +38,18 @@ export const categories = [
       "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=2574&auto=format&fit=crop",
   },
   {
-    title: "Accessories",
-    slug: "accessories",
-    description: "룩의 완성도를 높이는 프리미엄 포인트",
-    image:
-      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=2680&auto=format&fit=crop",
-  },
-  {
     title: "New In",
     slug: "new",
     description: "이번 시즌 새롭게 들어온 셀렉션",
     image:
       "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2670&auto=format&fit=crop",
+  },
+  {
+    title: "Accessories",
+    slug: "accessories",
+    description: "룩의 완성도를 높이는 프리미엄 포인트",
+    image:
+      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=2680&auto=format&fit=crop",
   },
 ];
 

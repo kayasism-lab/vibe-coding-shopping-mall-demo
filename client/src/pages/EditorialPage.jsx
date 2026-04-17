@@ -12,6 +12,15 @@ const getRelatedProducts = (products, relatedSkus) =>
     .map((sku) => products.find((product) => product.sku === sku))
     .filter(Boolean);
 
+const shouldRenderEventBlockCta = (editorialSlug, block) => {
+  // Keep this guard until older seeded editorial records no longer carry the legacy CTA.
+  if (editorialSlug === "minimalism-of-light" && block.eyebrow === "Edit 01") {
+    return false;
+  }
+
+  return Boolean(block.ctaLabel && block.ctaHref);
+};
+
 function EditorialPage({ user, onLogout }) {
   const { slug } = useParams();
   const { getEditorialBySlug, isLoading } = useEditorials();
@@ -67,7 +76,9 @@ function EditorialPage({ user, onLogout }) {
                   {block.eyebrow ? <p className="editorial-page__eyebrow">{block.eyebrow}</p> : null}
                   <h2>{block.title}</h2>
                   <p>{block.copy}</p>
-                  {block.ctaLabel && block.ctaHref ? <Link to={block.ctaHref}>{block.ctaLabel}</Link> : null}
+                  {shouldRenderEventBlockCta(editorial.slug, block) ? (
+                    <Link to={block.ctaHref}>{block.ctaLabel}</Link>
+                  ) : null}
                 </div>
               </article>
             ))}

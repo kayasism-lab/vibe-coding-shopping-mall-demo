@@ -26,8 +26,8 @@ export const fallbackEditorials = [
         image:
           "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=2574&auto=format&fit=crop",
         imageAlt: "코트 중심의 미니멀 에디토리얼 컷",
-        ctaLabel: "셀렉션 보기",
-        ctaHref: "/category/women",
+        ctaLabel: "",
+        ctaHref: "",
         alignment: "left",
       },
       {
