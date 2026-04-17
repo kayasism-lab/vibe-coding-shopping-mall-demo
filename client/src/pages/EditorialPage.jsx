@@ -6,6 +6,7 @@ import StoreHeader from "../components/store/StoreHeader";
 import { useEditorials } from "../context/EditorialContext";
 import { useProducts } from "../context/ProductContext";
 import "./EditorialPage.css";
+import "./EditorialPageNav.css";
 
 const getRelatedProducts = (products, relatedSkus) =>
   relatedSkus
@@ -13,7 +14,7 @@ const getRelatedProducts = (products, relatedSkus) =>
     .filter(Boolean);
 
 const shouldRenderEventBlockCta = (editorialSlug, block) => {
-  // Keep this guard until older seeded editorial records no longer carry the legacy CTA.
+  // 기존 시드 데이터에 남아 있을 수 있는 CTA를 화면에서 숨깁니다.
   if (editorialSlug === "minimalism-of-light" && block.eyebrow === "Edit 01") {
     return false;
   }
@@ -23,7 +24,7 @@ const shouldRenderEventBlockCta = (editorialSlug, block) => {
 
 function EditorialPage({ user, onLogout }) {
   const { slug } = useParams();
-  const { getEditorialBySlug, isLoading } = useEditorials();
+  const { getEditorialBySlug, getHomeEditorials, isLoading } = useEditorials();
   const { products } = useProducts();
   const editorial = getEditorialBySlug(slug);
 
@@ -36,6 +37,7 @@ function EditorialPage({ user, onLogout }) {
   }
 
   const relatedProducts = getRelatedProducts(products, editorial.relatedProductSkus);
+  const otherEditorials = getHomeEditorials().filter((e) => e.slug !== slug);
 
   return (
     <div className="store-shell">
@@ -155,6 +157,27 @@ function EditorialPage({ user, onLogout }) {
               {relatedProducts.map((product) => (
                 <Link key={product.sku} to={`/product/${product.sku}`}>
                   {product.name}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {otherEditorials.length > 0 ? (
+          <section aria-labelledby="editorial-page-nav-heading" className="editorial-page__nav">
+            <h2 className="editorial-page__eyebrow editorial-page__nav-heading" id="editorial-page-nav-heading">
+              다른 에디토리얼
+            </h2>
+            <div className="editorial-page__nav-grid">
+              {otherEditorials.map((item) => (
+                <Link className="editorial-page__nav-card" key={item.slug} to={`/editorial/${item.slug}`}>
+                  {item.heroImage ? (
+                    <img alt={item.heroImageAlt || item.title} loading="lazy" src={item.heroImage} />
+                  ) : null}
+                  <span className="editorial-page__nav-card-body">
+                    <span className="editorial-page__eyebrow">{item.label}</span>
+                    <span className="editorial-page__nav-card-title">{item.title}</span>
+                  </span>
                 </Link>
               ))}
             </div>
