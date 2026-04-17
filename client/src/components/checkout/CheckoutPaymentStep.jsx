@@ -11,15 +11,13 @@ const PAYMENT_METHODS = [
 const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
 /**
- * 토스 SDK: PC 기본은 iframe(통합창·간편결제 QR 등), 모바일만 self(전체 전환·앱 호출).
- * 모바일은 iframe 미지원이라 self 필수.
- *
- * 화면 너비만으로 self를 켜면 데스크톱에서 창을 좁혔을 때도 모바일 동선(카카오페이 앱 안내 등)으로
- * 갈 수 있어, User-Agent로 실제 모바일 기기일 때만 self를 씀.
+ * 토스 SDK: PC는 iframe(통합창·데스크톱 간편결제 QR), 모바일은 self(전체 전환, iframe 미지원).
+ * windowTarget / customerMobilePhone 조합이 간편결제 동선(앱 유도 vs QR)에 영향을 줄 수 있어
+ * 데스크톱(iframe)에서는 customerMobilePhone을 넣지 않음 — 로컬에서 번호 없이 테스트할 때와 동일한 요청 형태.
  */
 function getPreferredPaymentWindowTarget() {
   if (typeof window === "undefined") {
-    return undefined;
+    return "iframe";
   }
 
   const ua = navigator.userAgent || "";
@@ -27,7 +25,7 @@ function getPreferredPaymentWindowTarget() {
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) ||
     (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
 
-  return isMobileUa ? "self" : undefined;
+  return isMobileUa ? "self" : "iframe";
 }
 
 /**
@@ -88,6 +86,7 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
       const phoneDigits = digitsOnly(shippingData.phone);
 
       const windowTarget = getPreferredPaymentWindowTarget();
+      const isDesktopIframe = windowTarget === "iframe";
 
       const baseRequest = {
         method: "CARD",
@@ -97,16 +96,27 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
         successUrl,
         failUrl,
         customerName: shippingData.name,
-        ...(windowTarget ? { windowTarget } : {}),
+        windowTarget,
         ...(shippingData.email?.trim() ? { customerEmail: shippingData.email.trim() } : {}),
-        ...(phoneDigits.length >= 8 ? { customerMobilePhone: phoneDigits } : {}),
+        // 모바일(self)에서만 전화번호 전달 — PC(iframe)에서 넣으면 간편결제가 앱 호출 쪽으로 기울 수 있음
+        ...(!isDesktopIframe && phoneDigits.length >= 8 ? { customerMobilePhone: phoneDigits } : {}),
+      };
+
+      // 공식 가이드와 동일한 통합결제창 옵션(useAppCardOnly 등 명시)
+      const cardIntegrationDefaults = {
+        useEscrow: false,
+        useCardPoint: false,
+        useAppCardOnly: false,
       };
 
       // 3단계: 통합결제창(카드) vs 토스페이 직접창
       if (selectedMethod === "card") {
         await payment.requestPayment({
           ...baseRequest,
-          card: { flowMode: "DEFAULT" },
+          card: {
+            flowMode: "DEFAULT",
+            ...cardIntegrationDefaults,
+          },
         });
       } else {
         await payment.requestPayment({
@@ -114,6 +124,7 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
           card: {
             flowMode: "DIRECT",
             easyPay: "토스페이",
+            useAppCardOnly: false,
           },
         });
       }
