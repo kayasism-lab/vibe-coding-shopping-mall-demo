@@ -1,9 +1,8 @@
 
+# Claude Code / local workspace (settings, cache)
+.claude/
+
 # Autopus-ADK generated files
-.claude/rules/autopus/
-.claude/skills/autopus/
-.claude/commands/auto.md
-.claude/agents/autopus/
 .codex/skills/
 .gemini/skills/autopus/
 .opencode/

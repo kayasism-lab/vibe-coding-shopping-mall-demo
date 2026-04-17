@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
+import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useCart } from "../context/CartContext";
@@ -45,11 +46,15 @@ function CartPage({ user, onLogout }) {
               <div className="cart-page__items">
                 {items.map((item) => (
                   <article
-                    className="cart-page__item"
+                    className="cart-page__item product-hover-card"
                     key={`${item.product.sku}-${item.selectedColor}-${item.selectedSize}`}
                   >
                     <Link to={`/product/${item.product.sku}`}>
-                      <img loading="lazy" src={item.product.image} alt={item.product.name} />
+                      <ProductImageWithHover
+                        alt={item.product.name}
+                        hoverImage={item.product.hoverImage}
+                        image={item.product.image}
+                      />
                     </Link>
 
                     <div className="cart-page__item-content">

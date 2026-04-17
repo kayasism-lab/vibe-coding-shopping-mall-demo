@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
+import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useProducts } from "../context/ProductContext";
@@ -157,8 +158,15 @@ function SearchPage({ user, onLogout }) {
                       >
                         {isInWishlist(product.sku) ? "♥" : "♡"}
                       </button>
-                      <Link to={`/product/${product.sku}`}>
-                        <img alt={product.name} loading="lazy" src={product.image} />
+                      <Link
+                        className="search-page__media-link product-hover-card"
+                        to={`/product/${product.sku}`}
+                      >
+                        <ProductImageWithHover
+                          alt={product.name}
+                          hoverImage={product.hoverImage}
+                          image={product.image}
+                        />
                       </Link>
                     </div>
 

@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
+import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import { useProducts } from "../context/ProductContext";
 import {
   categories,
@@ -169,8 +170,18 @@ function CategoryPage({ user, onLogout }) {
                 }`}
               >
                 {filteredProducts.map((product) => (
-                  <Link className="category-page__card" key={product.sku} to={`/product/${product.sku}`}>
-                    <img loading="lazy" src={product.image} alt={product.name} />
+                  <Link
+                    className="category-page__card product-hover-card"
+                    key={product.sku}
+                    to={`/product/${product.sku}`}
+                  >
+                    <div className="category-page__card-image">
+                      <ProductImageWithHover
+                        alt={product.name}
+                        hoverImage={product.hoverImage}
+                        image={product.image}
+                      />
+                    </div>
                     <div>
                       <span>{product.category}</span>
                       <h3>{product.name}</h3>

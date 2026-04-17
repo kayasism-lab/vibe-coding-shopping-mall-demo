@@ -211,10 +211,14 @@
   align-items: center;
 }
 
-.orders-page__item img {
+.orders-page__item .product-image-hover {
   width: 72px;
   height: 88px;
-  object-fit: cover;
+  border-radius: 14px;
+}
+
+.orders-page__item .product-image-hover__main,
+.orders-page__item .product-image-hover__alt {
   border-radius: 14px;
 }
 

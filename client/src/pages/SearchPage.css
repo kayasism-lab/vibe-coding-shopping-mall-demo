@@ -97,11 +97,17 @@
   aspect-ratio: 0.78;
 }
 
-.search-page__media img,
-.wishlist-page__media img {
+.search-page__media-link,
+.wishlist-page__media-link {
+  display: block;
+  height: 100%;
+  color: inherit;
+}
+
+.search-page__media .product-image-hover,
+.wishlist-page__media .product-image-hover {
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
 .search-page__card-body,

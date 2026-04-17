@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import ProductImageWithHover from "./ProductImageWithHover";
 import { formatKrw } from "../../utils/currency";
 import "./store.css";
 
@@ -46,10 +47,14 @@ function CartSidebar() {
           ) : (
             items.map((item) => (
               <article
-                className="cart-sidebar__item"
+                className="cart-sidebar__item product-hover-card"
                 key={`${item.product.sku}-${item.selectedColor}-${item.selectedSize}`}
               >
-                <img loading="lazy" src={item.product.image} alt={item.product.name} />
+                <ProductImageWithHover
+                  alt={item.product.name}
+                  hoverImage={item.product.hoverImage}
+                  image={item.product.image}
+                />
 
                 <div>
                   <h4>{item.product.name}</h4>

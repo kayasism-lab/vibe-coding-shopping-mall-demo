@@ -1,5 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
+import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useCart } from "../context/CartContext";
@@ -42,8 +43,15 @@ function WishlistPage({ user, onLogout }) {
                   >
                     ×
                   </button>
-                  <Link to={`/product/${product.sku}`}>
-                    <img alt={product.name} loading="lazy" src={product.image} />
+                  <Link
+                    className="wishlist-page__media-link product-hover-card"
+                    to={`/product/${product.sku}`}
+                  >
+                    <ProductImageWithHover
+                      alt={product.name}
+                      hoverImage={product.hoverImage}
+                      image={product.image}
+                    />
                   </Link>
                 </div>
 

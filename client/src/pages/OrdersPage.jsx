@@ -1,5 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
+import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useOrders } from "../context/OrderContext";
@@ -66,10 +67,14 @@ function OrdersPage({ user, onLogout }) {
                 <div className="orders-page__items">
                   {order.items.map((item) => (
                     <div
-                      className="orders-page__item"
+                      className="orders-page__item product-hover-card"
                       key={`${order.id}-${item.product.sku}-${item.selectedColor}-${item.selectedSize}`}
                     >
-                      <img loading="lazy" src={item.product.image} alt={item.product.name} />
+                      <ProductImageWithHover
+                        alt={item.product.name}
+                        hoverImage={item.product.hoverImage}
+                        image={item.product.image}
+                      />
                       <div>
                         <strong>{item.product.name}</strong>
                         <span>

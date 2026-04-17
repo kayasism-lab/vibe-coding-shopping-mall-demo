@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
+import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useCart } from "../context/CartContext";
@@ -240,11 +241,17 @@ export function ProductPageContent({ product, relatedProducts, user, onLogout })
             <div className="product-page__related-grid">
               {relatedProducts.map((relatedProduct) => (
                 <Link
-                  className="product-page__related-card"
+                  className="product-page__related-card product-hover-card"
                   key={relatedProduct.sku}
                   to={`/product/${relatedProduct.sku}`}
                 >
-                  <img loading="lazy" src={relatedProduct.image} alt={relatedProduct.name} />
+                  <div className="product-page__related-media">
+                    <ProductImageWithHover
+                      alt={relatedProduct.name}
+                      hoverImage={relatedProduct.hoverImage}
+                      image={relatedProduct.image}
+                    />
+                  </div>
                   <div>
                     <h4>{relatedProduct.name}</h4>
                     <span>{formatKrw(relatedProduct.price)}</span>

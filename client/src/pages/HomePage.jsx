@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
+import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useEditorials } from "../context/EditorialContext";
@@ -257,16 +258,14 @@ function HomePage({ user, onLogout }) {
         <div className="product-showcase">
           {featuredProduct ? (
             <Link
-              className="product-card product-card--featured"
+              className="product-card product-card--featured product-hover-card"
               to={`/product/${featuredProduct.sku}`}
             >
               <div className="product-card__media">
-                <img loading="lazy" src={featuredProduct.image} alt={featuredProduct.name} />
-                <img
-                  className="product-card__hover-image"
-                  loading="lazy"
-                  src={featuredProduct.hoverImage}
-                  alt={`${featuredProduct.name} 추가 이미지`}
+                <ProductImageWithHover
+                  alt={featuredProduct.name}
+                  hoverImage={featuredProduct.hoverImage}
+                  image={featuredProduct.image}
                 />
               </div>
 
@@ -284,17 +283,15 @@ function HomePage({ user, onLogout }) {
           <div className="product-grid">
             {standardProducts.map((product) => (
               <Link
-                className="product-card product-card--standard"
+                className="product-card product-card--standard product-hover-card"
                 key={product.sku}
                 to={`/product/${product.sku}`}
               >
                 <div className="product-card__media">
-                  <img loading="lazy" src={product.image} alt={product.name} />
-                  <img
-                    className="product-card__hover-image"
-                    loading="lazy"
-                    src={product.hoverImage}
-                    alt={`${product.name} 추가 이미지`}
+                  <ProductImageWithHover
+                    alt={product.name}
+                    hoverImage={product.hoverImage}
+                    image={product.image}
                   />
                 </div>
 

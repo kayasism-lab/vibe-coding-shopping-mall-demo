@@ -277,10 +277,15 @@
   box-shadow: 0 16px 40px rgba(17, 24, 39, 0.08);
 }
 
-.product-page__related-card img {
+.product-page__related-media {
   width: 100%;
   aspect-ratio: 3 / 4;
-  object-fit: cover;
+  overflow: hidden;
+}
+
+.product-page__related-media .product-image-hover {
+  width: 100%;
+  height: 100%;
 }
 
 .product-page__related-card div {
