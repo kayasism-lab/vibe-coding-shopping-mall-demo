@@ -1,8 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useOrders } from "../../context/OrderContext";
 import { useProducts } from "../../context/ProductContext";
 import { formatKrw, formatKrwCompact } from "../../utils/currency";
+import { getRevenueChartBuckets } from "../../utils/reportChart";
 import "./AdminPages.css";
 
 function AdminReportsPage() {
@@ -18,15 +19,11 @@ function AdminReportsPage() {
     0
   );
 
-  const formatter = new Intl.DateTimeFormat("en-US", { month: "short" });
-  const groupedRevenue = new Map();
-
-  orders.forEach((order) => {
-    const month = formatter.format(new Date(order.createdAt));
-    groupedRevenue.set(month, (groupedRevenue.get(month) || 0) + order.totalPrice);
-  });
-
-  const monthlyRevenue = [...groupedRevenue.entries()].map(([month, revenue]) => ({ month, revenue }));
+  const revenueChartBuckets = getRevenueChartBuckets(orders, dateRange);
+  const maxBucketRevenue = revenueChartBuckets.reduce(
+    (highestRevenue, bucket) => Math.max(highestRevenue, bucket.revenue),
+    0
+  );
 
   const categoryCounts = orders.reduce((result, order) => {
     order.items.forEach((item) => {
@@ -119,11 +116,6 @@ function AdminReportsPage() {
           <strong>{formatKrw(averageOrderValue)}</strong>
           <span>주문당 평균 결제액</span>
         </article>
-        <article className="admin-page__stat-card">
-          <small>전환율</small>
-          <strong>3.2%</strong>
-          <span>참조 소스 데모 수치</span>
-        </article>
       </div>
 
       {isLoading ? (
@@ -138,15 +130,31 @@ function AdminReportsPage() {
             <h2>매출 개요</h2>
           </div>
           <div className="admin-page__chart-body">
-            <div className="admin-page__chart">
-              {(monthlyRevenue.length > 0 ? monthlyRevenue : [{ month: "데이터 없음", revenue: 0 }]).map((item) => (
-                <div className="admin-page__bar-group" key={item.month}>
-                  <span className="admin-page__bar-value">{formatKrwCompact(item.revenue)}</span>
+            <div
+              className={`admin-page__chart ${
+                revenueChartBuckets.length > 20
+                  ? "admin-page__chart--compact"
+                  : revenueChartBuckets.length > 12
+                    ? "admin-page__chart--dense"
+                    : ""
+              }`}
+            >
+              {revenueChartBuckets.map((item) => (
+                <div className="admin-page__bar-group" data-testid="revenue-bar-group" key={item.key}>
+                  <span className="admin-page__bar-value">
+                    {item.revenue > 0 ? formatKrwCompact(item.revenue) : ""}
+                  </span>
                   <div
                     className="admin-page__bar"
-                    style={{ height: `${Math.max((item.revenue / 25000) * 220, 12)}px` }}
+                    style={{
+                      height: `${
+                        maxBucketRevenue > 0
+                          ? Math.max((item.revenue / maxBucketRevenue) * 220, item.revenue > 0 ? 12 : 6)
+                          : 6
+                      }px`,
+                    }}
                   />
-                  <span className="admin-page__bar-label">{item.month}</span>
+                  <span className="admin-page__bar-label">{item.displayLabel}</span>
                 </div>
               ))}
             </div>

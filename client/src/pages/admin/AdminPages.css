@@ -900,17 +900,26 @@
   min-height: 260px;
 }
 
+.admin-page__chart--dense {
+  gap: 8px;
+}
+
+.admin-page__chart--compact {
+  gap: 4px;
+}
+
 .admin-page__bar-group {
   display: flex;
   flex: 1;
   flex-direction: column;
   align-items: center;
+  min-width: 0;
   gap: 10px;
 }
 
 .admin-page__bar {
   width: 100%;
-  min-height: 12px;
+  min-height: 4px;
   border-radius: 18px 18px 6px 6px;
   background: linear-gradient(180deg, rgba(17, 24, 39, 0.9), rgba(154, 123, 104, 0.7));
 }
@@ -922,6 +931,16 @@
 
 .admin-page__bar-value {
   color: #6b7280;
+}
+
+.admin-page__chart--compact .admin-page__bar-label,
+.admin-page__chart--compact .admin-page__bar-value {
+  font-size: 10px;
+}
+
+.admin-page__bar-label:empty,
+.admin-page__bar-value:empty {
+  min-height: 1em;
 }
 
 .admin-page__metric-list {
