@@ -8,6 +8,8 @@ const PAYMENT_METHODS = [
   { id: "tosspay", label: "토스페이" },
 ];
 
+const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
+
 /**
  * 결제 단계 컴포넌트
  * Props:
@@ -30,7 +32,7 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
   /**
    * 결제 처리 핸들러
    * 1. 임시 주문(pending) 생성
-   * 2. 토스페이먼츠 SDK 초기화 후 결제창 호출
+   * 2. 토스페이먼츠 SDK v2 초기화 후 결제창 호출
    * 3. 오류 발생 시 pending 주문 취소
    */
   const handlePaymentSubmit = async (event) => {
@@ -41,6 +43,11 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
     let createdOrder = null;
 
     try {
+      const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY?.trim();
+      if (!clientKey) {
+        throw new Error("결제 클라이언트 키가 설정되지 않았습니다. 배포 환경 변수를 확인해주세요.");
+      }
+
       // 1단계: 서버에 임시 주문 생성 (status: "pending")
       createdOrder = await addOrder({
         items,
@@ -50,22 +57,45 @@ function CheckoutPaymentStep({ shippingData, user, totalAmount, orderName, items
         userKey: user?._id || user?.email || null,
       });
 
-      // 2단계: 토스페이먼츠 SDK 동적 로드
-      const { loadTossPayments } = await import("@tosspayments/payment-sdk");
-      const tossPayments = await loadTossPayments(import.meta.env.VITE_TOSS_CLIENT_KEY);
+      // 2단계: 토스페이먼츠 SDK v2 동적 로드 (@tosspayments/tosspayments-sdk)
+      const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
+      const tossPayments = await loadTossPayments(clientKey);
+      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
 
-      // 3단계: 결제 수단에 따라 결제창 호출
-      const paymentMethod = selectedMethod === "card" ? "카드" : "토스페이";
+      const amountValue = Math.round(Number(totalAmount));
+      const successUrl = `${window.location.origin}/checkout/success`;
+      const failUrl = `${window.location.origin}/checkout/fail`;
+      const phoneDigits = digitsOnly(shippingData.phone);
 
-      await tossPayments.requestPayment(paymentMethod, {
-        amount: totalAmount,
+      const baseRequest = {
+        method: "CARD",
+        amount: { currency: "KRW", value: amountValue },
         orderId: createdOrder.id,
         orderName,
+        successUrl,
+        failUrl,
         customerName: shippingData.name,
+        // 모바일에서 iframe 결제창은 지원되지 않음 — 리다이렉트 방식과 함께 self 권장
+        windowTarget: "self",
         ...(shippingData.email?.trim() ? { customerEmail: shippingData.email.trim() } : {}),
-        successUrl: `${window.location.origin}/checkout/success`,
-        failUrl: `${window.location.origin}/checkout/fail`,
-      });
+        ...(phoneDigits.length >= 8 ? { customerMobilePhone: phoneDigits } : {}),
+      };
+
+      // 3단계: 통합결제창(카드) vs 토스페이 직접창
+      if (selectedMethod === "card") {
+        await payment.requestPayment({
+          ...baseRequest,
+          card: { flowMode: "DEFAULT" },
+        });
+      } else {
+        await payment.requestPayment({
+          ...baseRequest,
+          card: {
+            flowMode: "DIRECT",
+            easyPay: "토스페이",
+          },
+        });
+      }
     } catch (err) {
       // 토스 결제창 오류 또는 SDK 초기화 오류 발생 시 pending 주문 취소
       if (createdOrder?.id) {
