@@ -11,6 +11,7 @@ const editorialRoutes = require("./routes/editorials");
 const orderRoutes = require("./routes/orders");
 const productRoutes = require("./routes/products");
 const paymentRoutes = require("./routes/payments");
+const homeContentRoutes = require("./routes/homeContent");
 const { ensureSeedData } = require("./utils/seedData");
 
 const app = express();
@@ -60,6 +61,7 @@ app.use("/api/editorials", editorialRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/home-content", homeContentRoutes);
 
 // 서버 동작 확인용 기본 엔드포인트
 app.get("/", (req, res) => {

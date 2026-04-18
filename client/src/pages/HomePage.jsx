@@ -5,8 +5,8 @@ import ProductImageWithHover from "../components/store/ProductImageWithHover";
 import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useEditorials } from "../context/EditorialContext";
+import { useHomeContent } from "../context/HomeContentContext";
 import { useProducts } from "../context/ProductContext";
-import { categories, heroSlides } from "../data/catalog";
 import { formatKrw } from "../utils/currency";
 import { refreshStoredSession } from "../utils/auth";
 import "./HomePage.css";
@@ -63,6 +63,7 @@ const getStandardProducts = (items, featuredIndex) => {
 function HomePage({ user, onLogout }) {
   const { getHomeEditorials } = useEditorials();
   const { products } = useProducts();
+  const { heroSlides, moodCategories, moodEyebrow, moodTitle } = useHomeContent();
   const [currentUser, setCurrentUser] = useState(user);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentSelectionIndex, setCurrentSelectionIndex] = useState(0);
@@ -88,12 +89,20 @@ function HomePage({ user, onLogout }) {
   }, [user, onLogout]);
 
   useEffect(() => {
+    if (!heroSlides.length) {
+      return undefined;
+    }
+
+    setCurrentSlide((previousSlide) =>
+      previousSlide >= heroSlides.length ? 0 : previousSlide
+    );
+
     const slideTimer = window.setInterval(() => {
       setCurrentSlide((previousSlide) => (previousSlide + 1) % heroSlides.length);
     }, 5000);
 
     return () => window.clearInterval(slideTimer);
-  }, []);
+  }, [heroSlides]);
 
   const handleNewsletterSubmit = (event) => {
     event.preventDefault();
@@ -156,7 +165,7 @@ function HomePage({ user, onLogout }) {
         <div className="hero-section__slides">
           {heroSlides.map((slide, index) => (
             <div
-              key={slide.title}
+              key={slide.id}
               className={`hero-section__slide ${
                 index === currentSlide ? "hero-section__slide--active" : ""
               }`}
@@ -167,61 +176,70 @@ function HomePage({ user, onLogout }) {
 
         <div className="hero-section__overlay" />
 
-        <div className="hero-section__content">
-          <p>{heroSlides[currentSlide].subtitle}</p>
-          <h2>{heroSlides[currentSlide].title}</h2>
-          <span>{heroSlides[currentSlide].description}</span>
+        {heroSlides.length > 0 ? (
+          <>
+            <div className="hero-section__content">
+              <p>{heroSlides[currentSlide].subtitle}</p>
+              <h2>{heroSlides[currentSlide].title}</h2>
+              <span>{heroSlides[currentSlide].description}</span>
 
-          <div className="hero-section__cta">
-            <a className="hero-section__link hero-section__link--primary" href="#products">
-              신상품 보기
-            </a>
-          </div>
-        </div>
+              <div className="hero-section__cta">
+                <a
+                  className="hero-section__link hero-section__link--primary"
+                  href={heroSlides[currentSlide].ctaHref || "#products"}
+                >
+                  {heroSlides[currentSlide].ctaLabel || "신상품 보기"}
+                </a>
+              </div>
+            </div>
 
-        <div className="hero-section__controls">
-          <button
-            type="button"
-            aria-label="이전 슬라이드"
-            onClick={() =>
-              setCurrentSlide(
-                (previousSlide) => (previousSlide - 1 + heroSlides.length) % heroSlides.length
-              )
-            }
-          >
-            이전
-          </button>
-          <div className="hero-section__dots">
-            {heroSlides.map((slide, index) => (
+            <div className="hero-section__controls">
               <button
-                key={slide.title}
                 type="button"
-                aria-label={`${slide.title} 보기`}
-                className={index === currentSlide ? "is-active" : ""}
-                onClick={() => setCurrentSlide(index)}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            aria-label="다음 슬라이드"
-            onClick={() => setCurrentSlide((previousSlide) => (previousSlide + 1) % heroSlides.length)}
-          >
-            다음
-          </button>
-        </div>
+                aria-label="이전 슬라이드"
+                onClick={() =>
+                  setCurrentSlide(
+                    (previousSlide) => (previousSlide - 1 + heroSlides.length) % heroSlides.length
+                  )
+                }
+              >
+                이전
+              </button>
+              <div className="hero-section__dots">
+                {heroSlides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    aria-label={`${slide.title} 보기`}
+                    className={index === currentSlide ? "is-active" : ""}
+                    onClick={() => setCurrentSlide(index)}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                aria-label="다음 슬라이드"
+                onClick={() =>
+                  setCurrentSlide((previousSlide) => (previousSlide + 1) % heroSlides.length)
+                }
+              >
+                다음
+              </button>
+            </div>
+          </>
+        ) : null}
       </section>
 
       <section className="category-section" id="categories">
         <div className="section-heading">
-          <p>Collection</p>
-          <h3>Shop by Mood</h3>
+          <p>{moodEyebrow}</p>
+          <h3>{moodTitle}</h3>
         </div>
 
         <div className="category-grid">
-          {categories.map((category) => (
+          {moodCategories.map((category) => (
             <Link
-              key={category.title}
+              key={`${category.slug}-${category.title}`}
               className="category-card"
               style={{ backgroundImage: `url(${category.image})` }}
               to={`/category/${category.slug}`}

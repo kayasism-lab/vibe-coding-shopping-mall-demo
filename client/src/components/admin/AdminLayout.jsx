@@ -4,6 +4,8 @@ import "../../pages/admin/AdminPages.css";
 
 const navItems = [
   { to: "/admin", label: "대시보드", end: true },
+  { to: "/admin/main-slide", label: "메인 슬라이드" },
+  { to: "/admin/main-category", label: "메인 카테고리" },
   { to: "/admin/products", label: "상품" },
   { to: "/admin/editorials", label: "에디토리얼" },
   { to: "/admin/orders", label: "주문" },

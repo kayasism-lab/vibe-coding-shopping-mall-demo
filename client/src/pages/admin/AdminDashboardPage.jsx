@@ -119,6 +119,35 @@ function QuickReportIcon() {
   );
 }
 
+function QuickMainSlideIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path
+        d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function QuickMainCategoryIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path
+        d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
 function QuickCustomerIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -140,6 +169,18 @@ const quickActions = [
     label: "새 상품 등록",
     description: "신규 상품을 바로 추가합니다.",
     icon: <QuickProductIcon />,
+  },
+  {
+    to: "/admin/main-slide",
+    label: "메인 슬라이드",
+    description: "상단 히어로 슬라이드 이미지와 문구를 수정합니다.",
+    icon: <QuickMainSlideIcon />,
+  },
+  {
+    to: "/admin/main-category",
+    label: "메인 카테고리",
+    description: "Shop by Mood 제목과 카드(이미지·링크)를 수정합니다.",
+    icon: <QuickMainCategoryIcon />,
   },
   {
     to: "/admin/orders",

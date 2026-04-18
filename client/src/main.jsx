@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { HomeContentProvider } from './context/HomeContentContext.jsx'
 import { OrderProvider } from './context/OrderContext.jsx'
 import { ProductProvider } from './context/ProductContext.jsx'
 import './index.css'
@@ -12,7 +13,9 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <ProductProvider>
         <OrderProvider>
-          <App />
+          <HomeContentProvider>
+            <App />
+          </HomeContentProvider>
         </OrderProvider>
       </ProductProvider>
     </BrowserRouter>

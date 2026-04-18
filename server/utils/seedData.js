@@ -5,7 +5,9 @@ const Order = require("../models/Order");
 const Editorial = require("../models/Editorial");
 const Product = require("../models/Product");
 const User = require("../models/User");
+const HomeContent = require("../models/HomeContent");
 const seedEditorials = require("../data/seedEditorials");
+const seedHomeContent = require("../data/seedHomeContent");
 const seedProducts = require("../data/seedProducts");
 
 const sampleCustomerConfigs = [
@@ -78,6 +80,17 @@ const ensureProductMainSelectionOrder = async () => {
     const nextValue = defaultSelectionSkus.has(product.sku) ? product.sku : null;
     await Product.updateOne({ _id: product._id }, { $set: { mainSelectionOrder: nextValue } });
   }
+};
+
+const ensureHomeContent = async () => {
+  const exists = await HomeContent.exists({ documentKey: "home" });
+
+  if (exists) {
+    return;
+  }
+
+  await HomeContent.create(seedHomeContent);
+  console.log("메인 페이지 콘텐츠 기본값을 시드했습니다.");
 };
 
 const ensureSeedEditorials = async () => {
@@ -328,6 +341,7 @@ const ensureSampleOrders = async (customers) => {
 };
 
 const ensureSeedData = async () => {
+  await ensureHomeContent();
   await ensureSeedProducts();
   await migrateLegacyProductIdentifiers();
   await ensureProductCategory2();

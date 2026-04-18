@@ -9,6 +9,7 @@ export const ORDERS_API_URL = `${API_BASE_URL}/api/orders`;
 export const PAYMENTS_API_URL = `${API_BASE_URL}/api/payments`;
 export const MY_ORDERS_API_URL = `${ORDERS_API_URL}/mine`;
 export const PRODUCTS_API_URL = `${API_BASE_URL}/api/products`;
+export const HOME_CONTENT_API_URL = `${API_BASE_URL}/api/home-content`;
 
 export const getStoredSession = () => {
   try {

@@ -1,0 +1,76 @@
+/* 메인 콘텐츠 편집: URL 입력 + Cloudinary 버튼이 잘리지 않도록 */
+.admin-image-url-field {
+  width: 100%;
+}
+
+.admin-image-url-field__row {
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.admin-image-url-field__input {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.admin-image-url-field__cloudinary {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  min-width: 9.5rem;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.admin-image-url-field__figure {
+  margin: 12px 0 0;
+}
+
+.admin-image-url-field__caption {
+  margin-top: 8px;
+}
+
+.admin-image-url-field__hint {
+  margin: 8px 0 0;
+}
+
+/* 슬라이드/카드 카드: 세로 스택으로 좌우 열 깨짐 방지 */
+.admin-home-block {
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  background: #fafafa;
+}
+
+.admin-home-block__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-home-block__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.admin-home-block__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-home-block__grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .admin-home-block__grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

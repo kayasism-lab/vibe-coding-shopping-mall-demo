@@ -13,6 +13,8 @@ const AddressManagePage = lazy(() => import("./pages/AddressManagePage"));
 const PasswordChangePage = lazy(() => import("./pages/PasswordChangePage"));
 const AdminCustomersPage = lazy(() => import("./pages/admin/AdminCustomersPage"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
+const AdminMainSlidePage = lazy(() => import("./pages/admin/AdminMainSlidePage"));
+const AdminMainCategoryPage = lazy(() => import("./pages/admin/AdminMainCategoryPage"));
 const AdminEditorialFormPage = lazy(() => import("./pages/admin/AdminEditorialFormPage"));
 const AdminEditorialsPage = lazy(() => import("./pages/admin/AdminEditorialsPage"));
 const AdminOrdersPage = lazy(() => import("./pages/admin/AdminOrdersPage"));
@@ -191,6 +193,9 @@ function App() {
                 element={<AdminLayout user={authSession?.user || null} onLogout={handleLogout} />}
               >
                 <Route index element={<AdminDashboardPage />} />
+                <Route path="home-content" element={<Navigate replace to="/admin/main-slide" />} />
+                <Route path="main-slide" element={<AdminMainSlidePage />} />
+                <Route path="main-category" element={<AdminMainCategoryPage />} />
                 <Route path="products" element={<AdminProductsPage />} />
                 <Route path="products/new" element={<AdminProductFormPage />} />
                 <Route path="products/:id/edit" element={<AdminProductFormPage />} />

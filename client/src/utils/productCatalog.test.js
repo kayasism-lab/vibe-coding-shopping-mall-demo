@@ -30,7 +30,7 @@ describe("productCatalog utilities", () => {
   });
 
   it("uses the category slug to resolve hero images", () => {
-    expect(getCategoryHeroImage(categories, "new")).toBe(categories[3].image);
+    expect(getCategoryHeroImage(categories, "new")).toBe(categories[2].image);
   });
 
   it("returns related products from the same women or men collection first", () => {

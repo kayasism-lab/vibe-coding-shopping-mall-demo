@@ -233,7 +233,8 @@
   font-weight: 700;
 }
 
-.admin-page__button {
+/* primary만 흰 글자 — ghost/danger는 아래에서 색 지정 (ghost에 primary 색이 덮이면 글자가 안 보임) */
+.admin-page__button:not(.admin-page__button--ghost):not(.admin-page__button--danger) {
   color: #fff;
   background: #111827;
 }
@@ -250,6 +251,7 @@
 }
 
 .admin-page__button--ghost {
+  color: #111827;
   background: #fff;
 }
 
@@ -662,12 +664,13 @@
 
 .admin-page__select {
   min-width: 0;
-  padding-right: 50px;
+  padding-right: 52px;
   appearance: none;
   -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23111827' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: calc(100% - 16px) 50%;
+  /* 오른쪽 끝에 붙지 않도록 화살표를 안쪽으로 (~2ch) */
+  background-position: calc(100% - 28px) 50%;
 }
 
 .admin-page__filter-tabs {
