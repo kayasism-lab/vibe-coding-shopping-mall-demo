@@ -1,8 +1,9 @@
 import { HOME_CONTENT_API_URL, getAuthorizationHeader } from "./auth";
+import { parseApiJsonResponse } from "./apiJson";
 
 export async function fetchHomeContentDocument() {
   const response = await fetch(HOME_CONTENT_API_URL);
-  const data = await response.json();
+  const data = await parseApiJsonResponse(response);
 
   if (!response.ok) {
     throw new Error(data?.message || "메인 콘텐츠를 불러오지 못했습니다.");
@@ -26,7 +27,7 @@ export async function saveHomeContentDocument(payload) {
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json();
+  const data = await parseApiJsonResponse(response);
 
   if (!response.ok) {
     throw new Error(data?.message || "저장에 실패했습니다.");

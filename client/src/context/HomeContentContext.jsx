@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { HOME_CONTENT_API_URL } from "../utils/auth";
+import { parseApiJsonResponse } from "../utils/apiJson";
 import {
   getFallbackHomeContent,
   normalizeHeroSlide,
@@ -36,7 +37,7 @@ export function HomeContentProvider({ children }) {
     try {
       setIsLoading(true);
       const response = await fetch(HOME_CONTENT_API_URL);
-      const payload = await response.json();
+      const payload = await parseApiJsonResponse(response);
 
       if (!response.ok) {
         throw new Error(payload?.message || "메인 콘텐츠를 불러오지 못했습니다.");
