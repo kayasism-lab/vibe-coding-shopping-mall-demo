@@ -1,4 +1,14 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const normalizeApiBase = (raw) => {
+  if (raw === undefined || raw === null) {
+    return "";
+  }
+  return String(raw).trim().replace(/\/+$/g, "");
+};
+
+const fromEnv = normalizeApiBase(import.meta.env.VITE_API_BASE_URL);
+
+/** 백엔드 베이스 URL (끝 슬래시 제거). 미설정 시 개발용 localhost (기존과 동일). */
+export const API_BASE_URL = fromEnv !== "" ? fromEnv : "http://localhost:5000";
 
 export const LOGIN_API_URL = `${API_BASE_URL}/api/auth/login`;
 export const AUTH_ME_API_URL = `${API_BASE_URL}/api/auth/me`;
