@@ -15,10 +15,11 @@
 
 .admin-image-url-field__cloudinary {
   flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
   white-space: nowrap;
-  min-width: 9.5rem;
-  padding-left: 14px;
-  padding-right: 14px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .admin-image-url-field__figure {

@@ -30,12 +30,12 @@ export default function AdminImageUrlField({
             title={
               cloudinaryDisabled
                 ? "VITE_CLOUDINARY_CLOUD_NAME, VITE_CLOUDINARY_UPLOAD_PRESET 필요"
-                : "Cloudinary 업로드 창 열기"
+                : "이미지 업로드 (Cloudinary)"
             }
             type="button"
             onClick={onCloudinaryClick}
           >
-            Cloudinary 업로드
+            업로드
           </button>
         </div>
         {hasImage ? (
@@ -52,7 +52,7 @@ export default function AdminImageUrlField({
           </figure>
         ) : (
           <p className="admin-page__muted admin-image-url-field__hint">
-            이미지 URL을 입력하거나 Cloudinary 업로드로 등록하세요.
+            이미지 URL을 입력하거나 업로드로 등록하세요.
           </p>
         )}
       </label>
