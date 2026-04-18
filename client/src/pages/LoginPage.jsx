@@ -195,8 +195,9 @@ function LoginPage({ onBackToStore, onForgotPassword, onSignup, onLoginSuccess }
             </button>
           </p>
           <div className="login-demo-account">
-            <p>테스트 계정정보</p>
+            <p>게스트 및 어드민 테스트 계정정보</p>
             <p className="login-demo-account-credential">guest@gmail.com/!1234qwer</p>
+            <p className="login-demo-account-credential">admin@gmail.com/!1234qwer</p>
           </div>
         </div>
 
