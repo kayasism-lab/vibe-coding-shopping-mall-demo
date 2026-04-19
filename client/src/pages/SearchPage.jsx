@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CartSidebar from "../components/store/CartSidebar";
 import ProductImageWithHover from "../components/store/ProductImageWithHover";
@@ -6,6 +6,7 @@ import StoreFooter from "../components/store/StoreFooter";
 import StoreHeader from "../components/store/StoreHeader";
 import { useProducts } from "../context/ProductContext";
 import { useWishlist } from "../context/WishlistContext";
+import { parseSkuText } from "../utils/editorialForm";
 import { searchProducts } from "../utils/productSearch";
 import { formatKrw } from "../utils/currency";
 import "./SearchPage.css";
@@ -30,13 +31,15 @@ const getVisiblePageNumbers = (currentPage, totalPages) => {
 function SearchPage({ user, onLogout }) {
   const { products } = useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
+  const skusParam = searchParams.get("skus") || "";
+  const curatedSkus = useMemo(() => parseSkuText(skusParam), [skusParam]);
+
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [debouncedQuery, setDebouncedQuery] = useState((searchParams.get("q") || "").trim());
-  const [page, setPage] = useState(() => Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10) || 1));
-  const [pageSize, setPageSize] = useState(
-    () => Math.max(1, Number.parseInt(searchParams.get("limit") || "5", 10) || 5)
-  );
   const { isInWishlist, toggleItem } = useWishlist();
+
+  const pageSize = Math.max(1, Number.parseInt(searchParams.get("limit") || "5", 10) || 1);
+  const pageFromUrl = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10) || 1);
 
   useEffect(() => {
     const timerId = window.setTimeout(() => {
@@ -46,35 +49,82 @@ function SearchPage({ user, onLogout }) {
     return () => window.clearTimeout(timerId);
   }, [query]);
 
-  const filteredProducts = useMemo(
-    () => searchProducts(products, debouncedQuery),
-    [debouncedQuery, products]
-  );
+  const filteredProducts = useMemo(() => {
+    if (debouncedQuery) {
+      return searchProducts(products, debouncedQuery);
+    }
+    if (curatedSkus.length > 0) {
+      const map = new Map(products.map((p) => [Number(p.sku), p]));
+      return curatedSkus.map((sku) => map.get(sku)).filter(Boolean);
+    }
+    return [];
+  }, [debouncedQuery, products, curatedSkus]);
+
   const totalResults = filteredProducts.length;
   const totalPages = totalResults === 0 ? 0 : Math.ceil(totalResults / pageSize);
-  const currentPage = totalPages > 0 ? Math.min(page, totalPages) : 1;
+  const currentPage = totalPages > 0 ? Math.min(pageFromUrl, totalPages) : 1;
+
+  const showResults = Boolean(debouncedQuery) || curatedSkus.length > 0;
+
+  const setPageInUrl = useCallback(
+    (nextPage) => {
+      const next = Math.max(1, nextPage);
+      setSearchParams((prev) => {
+        const merged = new URLSearchParams(prev);
+        merged.set("page", String(next));
+        if (!merged.get("limit")) {
+          merged.set("limit", String(pageSize));
+        }
+        return merged;
+      });
+    },
+    [pageSize, setSearchParams]
+  );
+
+  const setPageSizeInUrl = useCallback(
+    (nextSize) => {
+      const size = Math.max(1, nextSize);
+      setSearchParams((prev) => {
+        const merged = new URLSearchParams(prev);
+        merged.set("limit", String(size));
+        merged.set("page", "1");
+        return merged;
+      });
+    },
+    [setSearchParams]
+  );
 
   useEffect(() => {
-    if (!debouncedQuery) {
-      setSearchParams({});
+    const parsedSkus = parseSkuText(skusParam);
+    if (debouncedQuery) {
+      setSearchParams({
+        q: debouncedQuery,
+        page: String(currentPage),
+        limit: String(pageSize),
+      });
       return;
     }
-
-    setSearchParams({
-      q: debouncedQuery,
-      page: String(currentPage),
-      limit: String(pageSize),
-    });
-  }, [currentPage, debouncedQuery, pageSize, setSearchParams]);
+    if (parsedSkus.length > 0) {
+      setSearchParams({
+        skus: parsedSkus.join(","),
+        page: String(currentPage),
+        limit: String(pageSize),
+      });
+      return;
+    }
+    if (!query.trim()) {
+      setSearchParams({});
+    }
+  }, [debouncedQuery, currentPage, pageSize, query, setSearchParams, skusParam]);
 
   const results = useMemo(() => {
-    if (!debouncedQuery) {
+    if (!showResults) {
       return [];
     }
 
     const startIndex = (currentPage - 1) * pageSize;
     return filteredProducts.slice(startIndex, startIndex + pageSize);
-  }, [currentPage, debouncedQuery, filteredProducts, pageSize]);
+  }, [currentPage, filteredProducts, pageSize, showResults]);
 
   const visiblePages = useMemo(
     () => getVisiblePageNumbers(currentPage, totalPages),
@@ -99,7 +149,11 @@ function SearchPage({ user, onLogout }) {
               value={query}
               onChange={(event) => {
                 setQuery(event.target.value);
-                setPage(1);
+                setSearchParams((prev) => {
+                  const merged = new URLSearchParams(prev);
+                  merged.set("page", "1");
+                  return merged;
+                });
               }}
             />
             {query ? (
@@ -108,7 +162,11 @@ function SearchPage({ user, onLogout }) {
                 type="button"
                 onClick={() => {
                   setQuery("");
-                  setPage(1);
+                  setSearchParams((prev) => {
+                    const merged = new URLSearchParams(prev);
+                    merged.set("page", "1");
+                    return merged;
+                  });
                 }}
               >
                 ×
@@ -117,13 +175,15 @@ function SearchPage({ user, onLogout }) {
           </div>
         </section>
 
-        {debouncedQuery ? (
+        {showResults ? (
           <>
             <section className="search-page__result-header">
               <div>
-                <p>검색 결과</p>
+                <p>{debouncedQuery ? "검색 결과" : "큐레이션"}</p>
                 <h2>
-                  "{debouncedQuery}" 검색 결과 {totalResults}건
+                  {debouncedQuery
+                    ? `"${debouncedQuery}" 검색 결과 ${totalResults}건`
+                    : `선택한 상품 ${totalResults}건`}
                 </h2>
                 <span className="search-page__result-meta">현재 {pageSize}개씩 보고 있습니다.</span>
               </div>
@@ -131,8 +191,7 @@ function SearchPage({ user, onLogout }) {
                 className="search-page__page-size"
                 value={pageSize}
                 onChange={(event) => {
-                  setPageSize(Number(event.target.value));
-                  setPage(1);
+                  setPageSizeInUrl(Number(event.target.value));
                 }}
               >
                 {PAGE_SIZE_OPTIONS.map((size) => (
@@ -185,15 +244,23 @@ function SearchPage({ user, onLogout }) {
 
             {results.length === 0 ? (
               <section className="search-page__empty">
-                <h2>검색 결과가 없습니다.</h2>
-                <p>상품명, 카테고리, 상품 상세 정보를 조합해서 다시 검색해보세요.</p>
+                <h2>{debouncedQuery ? "검색 결과가 없습니다." : "표시할 상품이 없습니다."}</h2>
+                <p>
+                  {debouncedQuery
+                    ? "상품명, 카테고리, 상품 상세 정보를 조합해서 다시 검색해보세요."
+                    : "관리자에서 선택한 SKU가 판매 목록에 없을 수 있습니다."}
+                </p>
                 <Link to="/category/new">신상품 보러가기</Link>
               </section>
             ) : null}
 
             {totalPages > 1 ? (
               <nav className="search-page__pagination" aria-label="검색 결과 페이지 이동">
-                <button disabled={currentPage === 1} type="button" onClick={() => setPage((value) => value - 1)}>
+                <button
+                  disabled={currentPage === 1}
+                  type="button"
+                  onClick={() => setPageInUrl(currentPage - 1)}
+                >
                   이전
                 </button>
                 {visiblePages.map((pageNumber) => (
@@ -201,7 +268,7 @@ function SearchPage({ user, onLogout }) {
                     key={pageNumber}
                     className={pageNumber === currentPage ? "is-active" : ""}
                     type="button"
-                    onClick={() => setPage(pageNumber)}
+                    onClick={() => setPageInUrl(pageNumber)}
                   >
                     {pageNumber}
                   </button>
@@ -209,7 +276,7 @@ function SearchPage({ user, onLogout }) {
                 <button
                   disabled={currentPage === totalPages}
                   type="button"
-                  onClick={() => setPage((value) => value + 1)}
+                  onClick={() => setPageInUrl(currentPage + 1)}
                 >
                   다음
                 </button>
@@ -228,7 +295,11 @@ function SearchPage({ user, onLogout }) {
                     type="button"
                     onClick={() => {
                       setQuery(term);
-                      setPage(1);
+                      setSearchParams((prev) => {
+                        const merged = new URLSearchParams(prev);
+                        merged.set("page", "1");
+                        return merged;
+                      });
                     }}
                   >
                     {term}

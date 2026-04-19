@@ -8,6 +8,7 @@ import { useEditorials } from "../context/EditorialContext";
 import { useHomeContent } from "../context/HomeContentContext";
 import { useProducts } from "../context/ProductContext";
 import { formatKrw } from "../utils/currency";
+import { parseSkuText } from "../utils/editorialForm";
 import { refreshStoredSession } from "../utils/auth";
 import "./HomePage.css";
 
@@ -59,6 +60,23 @@ const getStandardProducts = (items, featuredIndex) => {
 
   return standardProducts;
 };
+
+function HeroCtaLink({ slide }) {
+  const label = slide.ctaLabel || "신상품 보기";
+  const curatedSkus = parseSkuText(slide.ctaProductSkus);
+  if (curatedSkus.length > 0) {
+    return (
+      <Link className="hero-section__link hero-section__link--primary" to={`/search?skus=${curatedSkus.join(",")}`}>
+        {label}
+      </Link>
+    );
+  }
+  return (
+    <a className="hero-section__link hero-section__link--primary" href="#products">
+      {label}
+    </a>
+  );
+}
 
 function HomePage({ user, onLogout }) {
   const { getHomeEditorials } = useEditorials();
@@ -187,12 +205,7 @@ function HomePage({ user, onLogout }) {
               <span>{heroSlides[currentSlide].description}</span>
 
               <div className="hero-section__cta">
-                <a
-                  className="hero-section__link hero-section__link--primary"
-                  href={heroSlides[currentSlide].ctaHref || "#products"}
-                >
-                  {heroSlides[currentSlide].ctaLabel || "신상품 보기"}
-                </a>
+                <HeroCtaLink slide={heroSlides[currentSlide]} />
               </div>
             </div>
 

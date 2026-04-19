@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AdminImageUrlField from "../../components/admin/AdminImageUrlField";
 import EditorialHeroFramingField from "../../components/admin/editorial/EditorialHeroFramingField";
+import EditorialRelatedProductsField from "../../components/admin/editorial/EditorialRelatedProductsField";
 import { useHomeContent } from "../../context/HomeContentContext";
 import {
   createEmptyHeroSlide,
@@ -287,27 +288,27 @@ function AdminMainSlidePage() {
                         />
                       </label>
 
-                      <div className="admin-home-block__grid-2">
-                        <label className="admin-page__field">
-                          <span>CTA 버튼 문구</span>
-                          <input
-                            className="admin-page__input"
-                            type="text"
-                            value={slide.ctaLabel}
-                            onChange={(event) => handleHeroChange(index, "ctaLabel", event.target.value)}
-                          />
-                        </label>
-                        <label className="admin-page__field">
-                          <span>CTA 링크</span>
-                          <input
-                            className="admin-page__input"
-                            type="text"
-                            value={slide.ctaHref}
-                            onChange={(event) => handleHeroChange(index, "ctaHref", event.target.value)}
-                            placeholder="#products 또는 https://…"
-                          />
-                        </label>
-                      </div>
+                      <label className="admin-page__field">
+                        <span>슬라이드 버튼 문구</span>
+                        <input
+                          className="admin-page__input"
+                          type="text"
+                          value={slide.ctaLabel}
+                          onChange={(event) => handleHeroChange(index, "ctaLabel", event.target.value)}
+                        />
+                      </label>
+
+                      <EditorialRelatedProductsField
+                        disabled={isSaving}
+                        label="버튼으로 열 상품 (검색 페이지 큐레이션)"
+                        sortSkus={false}
+                        value={slide.ctaProductSkus || ""}
+                        onChange={(next) => handleHeroChange(index, "ctaProductSkus", next)}
+                      />
+                      <p className="admin-page__muted" style={{ marginTop: -8, marginBottom: 0 }}>
+                        상품을 선택하면 스토어에서 버튼을 눌렀을 때 해당 상품만 먼저 보이는 상품 검색으로 연결됩니다. 비어 있으면
+                        같은 페이지의 상품 섹션으로 스크롤합니다.
+                      </p>
                     </div>
                   </article>
                 ))}

@@ -12,7 +12,8 @@ const heroSlideSchema = new Schema(
     title: { type: String, trim: true, default: "" },
     description: { type: String, trim: true, default: "" },
     ctaLabel: { type: String, trim: true, default: "신상품 보기" },
-    ctaHref: { type: String, trim: true, default: "#products" },
+    /** 콤마 구분 SKU — 설정 시 스토어 버튼이 /search?skus=… 로 연결 */
+    ctaProductSkus: { type: String, trim: true, default: "" },
   },
   { _id: false }
 );

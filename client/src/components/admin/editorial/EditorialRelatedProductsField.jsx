@@ -32,14 +32,25 @@ function sortProductsNewestFirst(items) {
   });
 }
 
-function formatSkusText(skus) {
-  return [...skus].sort((a, b) => a - b).join(", ");
+function formatSkusText(skus, sortSkus) {
+  const arr = [...skus];
+  if (sortSkus) {
+    arr.sort((a, b) => a - b);
+  }
+  return arr.join(", ");
 }
 
 /**
  * 관련 상품 SKU를 카테고리·라인·검색으로 찾아 체크하는 편집기 (최신 등록순).
+ * @param {boolean} [sortSkus=true] — false면 선택 순서를 문자열에 유지 (메인 슬라이드 CTA 등).
  */
-export default function EditorialRelatedProductsField({ label, value, onChange, disabled = false }) {
+export default function EditorialRelatedProductsField({
+  label,
+  value,
+  onChange,
+  disabled = false,
+  sortSkus = true,
+}) {
   const fieldId = useId();
   const { products, isLoading } = useProducts();
   const [search, setSearch] = useState("");
@@ -58,7 +69,9 @@ export default function EditorialRelatedProductsField({ label, value, onChange, 
     const q = search.trim().toLowerCase();
     let list = sortProductsNewestFirst(products);
 
-    if (primary !== "all") {
+    if (primary === "new") {
+      list = list.filter((p) => p.isNew);
+    } else if (primary !== "all") {
       list = list.filter((p) => p.category === primary);
     }
     if (line !== "all") {
@@ -76,7 +89,7 @@ export default function EditorialRelatedProductsField({ label, value, onChange, 
   }, [products, primary, line, search]);
 
   const setSkus = (nextSkus) => {
-    onChange(formatSkusText(nextSkus));
+    onChange(formatSkusText(nextSkus, sortSkus));
   };
 
   const toggleSku = (sku) => {
@@ -137,6 +150,7 @@ export default function EditorialRelatedProductsField({ label, value, onChange, 
             onChange={(e) => setPrimary(e.target.value)}
           >
             <option value="all">전체</option>
+            <option value="new">신상품</option>
             {PRIMARY_CATEGORIES.map((c) => (
               <option key={c} value={c}>
                 {PRIMARY_LABELS[c] || c}

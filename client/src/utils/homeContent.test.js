@@ -10,7 +10,7 @@ describe("normalizeHeroSlide", () => {
     const slide = normalizeHeroSlide({ title: "T" }, 2);
     expect(slide.id).toBe("hero-slide-3");
     expect(slide.ctaLabel).toBe("신상품 보기");
-    expect(slide.ctaHref).toBe("#products");
+    expect(slide.ctaProductSkus).toBe("");
     expect(slide.imagePosX).toBe(50);
     expect(slide.imagePosY).toBe(50);
   });

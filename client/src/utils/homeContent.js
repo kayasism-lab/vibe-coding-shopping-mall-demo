@@ -1,4 +1,11 @@
 import { categories as fallbackCategories, heroSlides as fallbackHeroSlides } from "../data/catalog";
+import { parseSkuText } from "./editorialForm";
+
+/** 히어로 버튼 연결용 SKU 문자열 정규화 (순서 유지, 중복 제거) */
+export const formatCtaProductSkus = (value) => {
+  const skus = parseSkuText(value);
+  return skus.join(", ");
+};
 
 export const MOOD_SLUG_OPTIONS = [
   { value: "women", label: "Women (women)" },
@@ -26,7 +33,7 @@ export const createEmptyHeroSlide = () => ({
   title: "",
   description: "",
   ctaLabel: "신상품 보기",
-  ctaHref: "#products",
+  ctaProductSkus: "",
 });
 
 export const createEmptyMoodCategory = () => ({
@@ -45,7 +52,7 @@ export const normalizeHeroSlide = (slide, index) => ({
   title: String(slide?.title || "").trim(),
   description: String(slide?.description || "").trim(),
   ctaLabel: String(slide?.ctaLabel || "신상품 보기").trim() || "신상품 보기",
-  ctaHref: String(slide?.ctaHref || "#products").trim() || "#products",
+  ctaProductSkus: formatCtaProductSkus(slide?.ctaProductSkus),
 });
 
 export const normalizeMoodCategory = (item) => ({

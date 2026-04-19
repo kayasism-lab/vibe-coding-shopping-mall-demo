@@ -3,6 +3,25 @@ const seedHomeContent = require("../data/seedHomeContent");
 
 const VALID_MOOD_SLUGS = new Set(["women", "men", "new", "accessories", "outerwear", "all"]);
 
+const parseSkuList = (value) =>
+  String(value || "")
+    .split(",")
+    .map((item) => Number.parseInt(item.trim(), 10))
+    .filter((item, index, array) => Number.isInteger(item) && item > 0 && array.indexOf(item) === index);
+
+const formatSkuListString = (skus, sortFirst = true) => {
+  const arr = [...skus];
+  if (sortFirst) {
+    arr.sort((a, b) => a - b);
+  }
+  return arr.join(", ");
+};
+
+const normalizeCtaProductSkus = (value, { preserveOrder = false } = {}) => {
+  const skus = parseSkuList(value);
+  return formatSkuListString(skus, !preserveOrder);
+};
+
 const clampImagePercent = (value) => {
   const n = Number(value);
   if (!Number.isFinite(n)) {
@@ -22,7 +41,7 @@ const normalizeHeroSlide = (slide, index) => {
     title: String(slide?.title || "").trim(),
     description: String(slide?.description || "").trim(),
     ctaLabel: String(slide?.ctaLabel || "신상품 보기").trim() || "신상품 보기",
-    ctaHref: String(slide?.ctaHref || "#products").trim() || "#products",
+    ctaProductSkus: normalizeCtaProductSkus(slide?.ctaProductSkus, { preserveOrder: true }),
   };
 };
 

@@ -12,7 +12,6 @@ module.exports = {
       title: "2026 봄/여름",
       description: "달빛공방 감성에 맞춘 미니멀 룩과 시즌 시그니처 아이템을 만나보세요.",
       ctaLabel: "신상품 보기",
-      ctaHref: "#products",
     },
     {
       id: "hero-slide-2",
@@ -22,7 +21,6 @@ module.exports = {
       title: "변하지 않는 우아함",
       description: "절제된 실루엣과 고급 소재로 완성한 무드 있는 데일리 스타일링.",
       ctaLabel: "신상품 보기",
-      ctaHref: "#products",
     },
     {
       id: "hero-slide-3",
@@ -32,7 +30,6 @@ module.exports = {
       title: "단순함의 미학",
       description: "옷장에 오래 남을 에센셜 제품들을 세련된 큐레이션으로 구성했습니다.",
       ctaLabel: "신상품 보기",
-      ctaHref: "#products",
     },
   ],
   moodCategories: [
