@@ -11,16 +11,35 @@
 }
 
 .editorial-hero {
+  position: relative;
+  isolation: isolate;
   min-height: 560px;
   display: grid;
   align-items: end;
   padding: 48px;
   color: #fff;
-  background-position: center;
+  overflow: hidden;
+}
+
+.editorial-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-repeat: no-repeat;
   background-size: cover;
 }
 
+.editorial-hero__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(rgba(17, 24, 39, 0.22), rgba(17, 24, 39, 0.28));
+}
+
 .editorial-hero__content {
+  position: relative;
+  z-index: 2;
   max-width: 720px;
 }
 

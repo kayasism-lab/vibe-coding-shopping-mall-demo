@@ -26,8 +26,31 @@
   margin: 12px 0 0;
 }
 
-.admin-image-url-field__caption {
-  margin-top: 8px;
+/* 16:9 ~ 9:16 등 다양한 비율: 가로-only 짧은 박스 대신 충분한 세로 + 중앙 정렬 */
+.admin-image-url-field__preview-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 260px;
+  max-height: min(75vh, 640px);
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: rgba(17, 24, 39, 0.04);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.admin-image-url-field__preview-box .admin-image-url-field__preview-img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(68vh, 580px);
+  margin: 0;
+  border: none;
+  background: transparent;
+  object-fit: contain;
 }
 
 .admin-image-url-field__hint {

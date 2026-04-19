@@ -27,4 +27,30 @@ describe("normalizeEditorialPayload", () => {
 
     expect(payload.heroImageAlt).toBe("비하인드 스토리");
   });
+
+  it("비하인드 스토리 슬러그는 related product sku를 저장하지 않는다", () => {
+    const payload = normalizeEditorialPayload({
+      formData: {
+        slug: "behind-the-story",
+        title: "비하인드 스토리",
+        label: "스튜디오",
+        subtitle: "설명",
+        format: "studio-story",
+        status: "published",
+        heroImage: "https://example.com/hero.jpg",
+        heroImageAlt: "",
+        intro: "인트로",
+        closingCtaLabel: "",
+        closingCtaHref: "",
+        relatedProductSkusText: "1, 2, 99",
+      },
+      eventBlocks: [{ title: "카드", copy: "설명", image: "https://example.com/card.jpg" }],
+      manifestoSections: [],
+      looks: [],
+      processSections: [{ heading: "섹션", body: "본문", image: "https://example.com/section.jpg" }],
+      galleryImages: [],
+    });
+
+    expect(payload.relatedProductSkus).toEqual([]);
+  });
 });

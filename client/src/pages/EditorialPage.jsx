@@ -8,10 +8,11 @@ import { useProducts } from "../context/ProductContext";
 import "./EditorialPage.css";
 import "./EditorialPageNav.css";
 
-const getRelatedProducts = (products, relatedSkus) =>
-  relatedSkus
-    .map((sku) => products.find((product) => product.sku === sku))
-    .filter(Boolean);
+const getRelatedProducts = (products, relatedSkus) => {
+  const list = Array.isArray(products) ? products : [];
+  const skus = Array.isArray(relatedSkus) ? relatedSkus : [];
+  return skus.map((sku) => list.find((product) => product.sku === sku)).filter(Boolean);
+};
 
 const shouldRenderEventBlockCta = (editorialSlug, block) => {
   // 기존 시드 데이터에 남아 있을 수 있는 CTA를 화면에서 숨깁니다.
@@ -36,7 +37,10 @@ function EditorialPage({ user, onLogout }) {
     return <Navigate replace to="/not-found" />;
   }
 
-  const relatedProducts = getRelatedProducts(products, editorial.relatedProductSkus);
+  const relatedProducts =
+    editorial.slug === "behind-the-story"
+      ? []
+      : getRelatedProducts(products, editorial.relatedProductSkus);
   const otherEditorials = getHomeEditorials().filter((e) => e.slug !== slug);
 
   return (
@@ -45,12 +49,16 @@ function EditorialPage({ user, onLogout }) {
       <CartSidebar />
 
       <main className="editorial-page">
-        <section
-          className="editorial-hero"
-          style={{
-            backgroundImage: `linear-gradient(rgba(17,24,39,0.22), rgba(17,24,39,0.28)), url(${editorial.heroImage})`,
-          }}
-        >
+        <section className="editorial-hero">
+          <div
+            aria-hidden
+            className="editorial-hero__bg"
+            style={{
+              backgroundImage: `url(${editorial.heroImage})`,
+              backgroundPosition: `${editorial.heroImagePosX ?? 50}% ${editorial.heroImagePosY ?? 50}%`,
+            }}
+          />
+          <div aria-hidden className="editorial-hero__shade" />
           <div className="editorial-hero__content">
             <p>{editorial.label}</p>
             <h1>{editorial.title}</h1>
@@ -172,7 +180,14 @@ function EditorialPage({ user, onLogout }) {
               {otherEditorials.map((item) => (
                 <Link className="editorial-page__nav-card" key={item.slug} to={`/editorial/${item.slug}`}>
                   {item.heroImage ? (
-                    <img alt={item.heroImageAlt || item.title} loading="lazy" src={item.heroImage} />
+                    <img
+                      alt={item.heroImageAlt || item.title}
+                      loading="lazy"
+                      src={item.heroImage}
+                      style={{
+                        objectPosition: `${item.heroImagePosX ?? 50}% ${item.heroImagePosY ?? 50}%`,
+                      }}
+                    />
                   ) : null}
                   <span className="editorial-page__nav-card-body">
                     <span className="editorial-page__eyebrow">{item.label}</span>

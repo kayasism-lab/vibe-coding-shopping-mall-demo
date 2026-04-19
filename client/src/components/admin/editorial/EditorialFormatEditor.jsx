@@ -1,5 +1,6 @@
 import React from "react";
 import EditorialImageField from "./EditorialImageField";
+import EditorialRelatedProductsField from "./EditorialRelatedProductsField";
 
 function EditorialFormatEditor({
   format,
@@ -17,7 +18,6 @@ function EditorialFormatEditor({
   onAddLook,
   onAddProcess,
   onAddGallery,
-  productSkuHelp,
 }) {
   const updateListItem = (setter, index, field, value) => {
     setter((current) =>
@@ -69,11 +69,14 @@ function EditorialFormatEditor({
                   onChange={(value) => updateListItem(setLooks, index, "image", value)}
                   onUpload={() => onUploadImage((url) => updateListItem(setLooks, index, "image", url))}
                 />
-                <label className="admin-page__field">
-                  <span>연결 상품 SKU</span>
-                  <input className="admin-page__input" placeholder="예: 2, 3" type="text" value={look.linkedSkusText} onChange={(event) => updateListItem(setLooks, index, "linkedSkusText", event.target.value)} />
-                  <p className="admin-page__muted">{productSkuHelp}</p>
-                </label>
+                <div className="admin-page__field">
+                  <EditorialRelatedProductsField
+                    disabled={cloudinaryBusy}
+                    label={`룩 ${index + 1} · 연결 상품`}
+                    value={look.linkedSkusText}
+                    onChange={(next) => updateListItem(setLooks, index, "linkedSkusText", next)}
+                  />
+                </div>
               </figcaption>
             </div>
           ))

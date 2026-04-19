@@ -13,6 +13,8 @@ export const createDefaultEditorialForm = (format = "manifesto") => ({
   status: "draft",
   heroImage: "",
   heroImageAlt: "",
+  heroImagePosX: 50,
+  heroImagePosY: 50,
   intro: "",
   closingCtaLabel: "",
   closingCtaHref: "",

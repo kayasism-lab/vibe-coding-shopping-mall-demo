@@ -1,13 +1,8 @@
-export const editorialHomeOrder = [
-  "behind-the-story",
-  "spring-lookbook",
-  "minimalism-of-light",
-];
-
 export const fallbackEditorials = [
   {
     _id: "fallback-minimalism-of-light",
     slug: "minimalism-of-light",
+    homeOrder: 2,
     title: "미니멀리즘의 미학",
     label: "에디토리얼",
     subtitle: "절제된 소재와 조용한 실루엣으로 완성한 시즌 무드",
@@ -61,6 +56,7 @@ export const fallbackEditorials = [
   {
     _id: "fallback-spring-lookbook",
     slug: "spring-lookbook",
+    homeOrder: 1,
     title: "봄 룩북",
     label: "룩북",
     subtitle: "가벼운 층과 부드러운 색감으로 완성한 일상 스타일링",
@@ -125,6 +121,7 @@ export const fallbackEditorials = [
   {
     _id: "fallback-behind-the-story",
     slug: "behind-the-story",
+    homeOrder: 0,
     title: "비하인드 스토리",
     label: "스튜디오",
     subtitle: "촬영 준비와 셀렉션 구성을 통해 드러나는 브랜드의 작업 방식",
@@ -160,7 +157,7 @@ export const fallbackEditorials = [
     ],
     closingCtaLabel: "스토어 메인으로 돌아가기",
     closingCtaHref: "/",
-    relatedProductSkus: [1, 4, 8],
+    relatedProductSkus: [],
     manifestoSections: [],
     looks: [],
     processSections: [

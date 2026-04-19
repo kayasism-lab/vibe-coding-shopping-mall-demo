@@ -9,9 +9,19 @@ export const MOOD_SLUG_OPTIONS = [
   { value: "all", label: "All (all)" },
 ];
 
+const clampImagePercent = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return 50;
+  }
+  return Math.min(100, Math.max(0, n));
+};
+
 export const createEmptyHeroSlide = () => ({
   id: `hero-${crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`}`,
   image: "",
+  imagePosX: 50,
+  imagePosY: 50,
   subtitle: "",
   title: "",
   description: "",
@@ -29,6 +39,8 @@ export const createEmptyMoodCategory = () => ({
 export const normalizeHeroSlide = (slide, index) => ({
   id: String(slide?.id || `hero-slide-${index + 1}`).trim(),
   image: String(slide?.image || "").trim(),
+  imagePosX: clampImagePercent(slide?.imagePosX),
+  imagePosY: clampImagePercent(slide?.imagePosY),
   subtitle: String(slide?.subtitle || "").trim(),
   title: String(slide?.title || "").trim(),
   description: String(slide?.description || "").trim(),

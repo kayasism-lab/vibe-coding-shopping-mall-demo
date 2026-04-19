@@ -169,7 +169,10 @@ function HomePage({ user, onLogout }) {
               className={`hero-section__slide ${
                 index === currentSlide ? "hero-section__slide--active" : ""
               }`}
-              style={{ backgroundImage: `url(${slide.image})` }}
+              style={{
+                backgroundImage: `url(${slide.image})`,
+                backgroundPosition: `${slide.imagePosX ?? 50}% ${slide.imagePosY ?? 50}%`,
+              }}
             />
           ))}
         </div>
@@ -329,7 +332,10 @@ function HomePage({ user, onLogout }) {
         <section className="editorial-section" id="editorial">
           <Link
             className="editorial-feature"
-            style={{ backgroundImage: `url(${homeEditorials[0].heroImage})` }}
+            style={{
+              backgroundImage: `url(${homeEditorials[0].heroImage})`,
+              backgroundPosition: `${homeEditorials[0].heroImagePosX ?? 50}% ${homeEditorials[0].heroImagePosY ?? 50}%`,
+            }}
             to={`/editorial/${homeEditorials[0].slug}`}
           >
             <div className="editorial-feature__overlay" />
@@ -345,7 +351,10 @@ function HomePage({ user, onLogout }) {
               <Link
                 key={card.slug}
                 className="editorial-stack__item"
-                style={{ backgroundImage: `url(${card.heroImage})` }}
+                style={{
+                  backgroundImage: `url(${card.heroImage})`,
+                  backgroundPosition: `${card.heroImagePosX ?? 50}% ${card.heroImagePosY ?? 50}%`,
+                }}
                 to={`/editorial/${card.slug}`}
               >
                 <div className="editorial-feature__overlay" />

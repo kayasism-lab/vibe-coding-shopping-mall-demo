@@ -3,11 +3,21 @@ const seedHomeContent = require("../data/seedHomeContent");
 
 const VALID_MOOD_SLUGS = new Set(["women", "men", "new", "accessories", "outerwear", "all"]);
 
+const clampImagePercent = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return 50;
+  }
+  return Math.min(100, Math.max(0, n));
+};
+
 const normalizeHeroSlide = (slide, index) => {
   const id = String(slide?.id || slide?._id || `hero-slide-${index + 1}`).trim();
   return {
     id,
     image: String(slide?.image || "").trim(),
+    imagePosX: clampImagePercent(slide?.imagePosX),
+    imagePosY: clampImagePercent(slide?.imagePosY),
     subtitle: String(slide?.subtitle || "").trim(),
     title: String(slide?.title || "").trim(),
     description: String(slide?.description || "").trim(),

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Editorial = require("../models/Editorial");
 
 const formatOptions = ["manifesto", "lookbook", "studio-story"];
@@ -19,6 +20,14 @@ const sanitizeSlug = (value) =>
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "");
+
+const sanitizeHeroImagePercent = (value, fallback = 50) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return fallback;
+  }
+  return Math.min(100, Math.max(0, n));
+};
 
 const sanitizeSkuArray = (items) =>
   Array.isArray(items)
@@ -90,6 +99,8 @@ const editorialFields = [
   "status",
   "heroImage",
   "heroImageAlt",
+  "heroImagePosX",
+  "heroImagePosY",
   "intro",
   "eventBlocks",
   "closingCtaLabel",
@@ -110,6 +121,8 @@ const normalizeEditorialPayload = (payload) => ({
   status: sanitizeText(payload.status) || "draft",
   heroImage: sanitizeText(payload.heroImage),
   heroImageAlt: sanitizeText(payload.heroImageAlt) || sanitizeText(payload.title),
+  heroImagePosX: sanitizeHeroImagePercent(payload.heroImagePosX),
+  heroImagePosY: sanitizeHeroImagePercent(payload.heroImagePosY),
   intro: sanitizeText(payload.intro),
   eventBlocks: sanitizeEventBlocks(payload.eventBlocks),
   closingCtaLabel: sanitizeText(payload.closingCtaLabel),
@@ -149,7 +162,7 @@ const validateEditorialPayload = (payload) => {
 const getEditorials = async (_req, res) => {
   try {
     const editorials = await Editorial.find({ status: "published" })
-      .sort({ createdAt: -1, _id: -1 })
+      .sort({ homeOrder: 1, createdAt: -1 })
       .select(publicProjection)
       .lean();
     res.json(editorials);
@@ -177,7 +190,7 @@ const getEditorial = async (req, res) => {
 
 const getAdminEditorials = async (_req, res) => {
   try {
-    const editorials = await Editorial.find().sort({ createdAt: -1, _id: -1 }).lean();
+    const editorials = await Editorial.find().sort({ homeOrder: 1, createdAt: -1 }).lean();
     res.json(editorials);
   } catch (error) {
     res.status(500).json({ message: "관리자 에디토리얼 조회에 실패했습니다.", error: error.message });
@@ -193,7 +206,13 @@ const createEditorial = async (req, res) => {
       return res.status(400).json({ message: validationMessage });
     }
 
-    const createdEditorial = await Editorial.create(payload);
+    const maxDoc = await Editorial.findOne().sort({ homeOrder: -1 }).select("homeOrder").lean();
+    const nextHomeOrder =
+      maxDoc && typeof maxDoc.homeOrder === "number" && !Number.isNaN(maxDoc.homeOrder)
+        ? maxDoc.homeOrder + 1
+        : 0;
+
+    const createdEditorial = await Editorial.create({ ...payload, homeOrder: nextHomeOrder });
     return res.status(201).json(createdEditorial);
   } catch (error) {
     if (error.code === 11000) {
@@ -232,6 +251,49 @@ const updateEditorial = async (req, res) => {
   }
 };
 
+const reorderEditorials = async (req, res) => {
+  try {
+    const { orderedIds } = req.body;
+
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ message: "orderedIds 배열이 필요합니다." });
+    }
+
+    const validIds = orderedIds.filter((id) => mongoose.Types.ObjectId.isValid(String(id)));
+
+    if (validIds.length !== orderedIds.length) {
+      return res.status(400).json({ message: "유효하지 않은 ID가 포함되어 있습니다." });
+    }
+
+    const allDocs = await Editorial.find().select("_id").lean();
+
+    if (allDocs.length !== validIds.length) {
+      return res.status(400).json({ message: "등록된 에디토리얼 개수와 순서 배열 길이가 맞지 않습니다." });
+    }
+
+    const idStrings = new Set(allDocs.map((doc) => String(doc._id)));
+
+    for (const id of validIds) {
+      if (!idStrings.has(String(id))) {
+        return res.status(400).json({ message: "목록에 없는 에디토리얼 ID가 포함되어 있습니다." });
+      }
+    }
+
+    const bulkOps = validIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { homeOrder: index } },
+      },
+    }));
+
+    await Editorial.bulkWrite(bulkOps);
+    const editorials = await Editorial.find().sort({ homeOrder: 1, createdAt: -1 }).lean();
+    return res.json(editorials);
+  } catch (error) {
+    return res.status(500).json({ message: "순서 저장에 실패했습니다.", error: error.message });
+  }
+};
+
 const deleteEditorial = async (req, res) => {
   try {
     const deletedEditorial = await Editorial.findByIdAndDelete(req.params.id).lean();
@@ -252,5 +314,6 @@ module.exports = {
   getAdminEditorials,
   createEditorial,
   updateEditorial,
+  reorderEditorials,
   deleteEditorial,
 };

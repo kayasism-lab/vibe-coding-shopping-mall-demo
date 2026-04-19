@@ -6,6 +6,14 @@ export const parseSkuText = (value) =>
 
 const trim = (value) => String(value || "").trim();
 
+const clampHeroPercent = (value, fallback = 50) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return fallback;
+  }
+  return Math.min(100, Math.max(0, n));
+};
+
 export const normalizeEditorialPayload = ({
   formData,
   eventBlocks,
@@ -22,6 +30,8 @@ export const normalizeEditorialPayload = ({
   status: trim(formData.status),
   heroImage: trim(formData.heroImage),
   heroImageAlt: trim(formData.heroImageAlt) || trim(formData.title),
+  heroImagePosX: clampHeroPercent(formData.heroImagePosX),
+  heroImagePosY: clampHeroPercent(formData.heroImagePosY),
   intro: trim(formData.intro),
   eventBlocks: eventBlocks
     .map((item) => ({
@@ -40,7 +50,10 @@ export const normalizeEditorialPayload = ({
     .slice(0, 3),
   closingCtaLabel: trim(formData.closingCtaLabel),
   closingCtaHref: trim(formData.closingCtaHref),
-  relatedProductSkus: parseSkuText(formData.relatedProductSkusText),
+  relatedProductSkus:
+    trim(formData.slug).toLowerCase() === "behind-the-story"
+      ? []
+      : parseSkuText(formData.relatedProductSkusText),
   manifestoSections: manifestoSections
     .map((item) => ({
       heading: trim(item.heading),

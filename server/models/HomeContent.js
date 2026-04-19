@@ -6,6 +6,8 @@ const heroSlideSchema = new Schema(
   {
     id: { type: String, required: true, trim: true },
     image: { type: String, trim: true, default: "" },
+    imagePosX: { type: Number, default: 50, min: 0, max: 100 },
+    imagePosY: { type: Number, default: 50, min: 0, max: 100 },
     subtitle: { type: String, trim: true, default: "" },
     title: { type: String, trim: true, default: "" },
     description: { type: String, trim: true, default: "" },

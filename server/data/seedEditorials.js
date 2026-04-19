@@ -6,6 +6,7 @@ module.exports = [
     subtitle: "절제된 소재와 조용한 실루엣으로 완성한 시즌 무드",
     format: "manifesto",
     status: "published",
+    homeOrder: 2,
     heroImage:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2564&auto=format&fit=crop",
     heroImageAlt: "모노톤 스타일의 여성 에디토리얼 이미지",
@@ -65,6 +66,7 @@ module.exports = [
     subtitle: "가벼운 층과 부드러운 색감으로 완성한 일상 스타일링",
     format: "lookbook",
     status: "published",
+    homeOrder: 1,
     heroImage:
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2670&auto=format&fit=crop",
     heroImageAlt: "봄 룩북 메인 이미지",
@@ -137,6 +139,7 @@ module.exports = [
     subtitle: "촬영 준비와 셀렉션 구성을 통해 드러나는 브랜드의 작업 방식",
     format: "studio-story",
     status: "published",
+    homeOrder: 0,
     heroImage:
       "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2671&auto=format&fit=crop",
     heroImageAlt: "스튜디오 백스테이지 이미지",
@@ -168,7 +171,7 @@ module.exports = [
     ],
     closingCtaLabel: "스토어 메인으로 돌아가기",
     closingCtaHref: "/",
-    relatedProductSkus: [1, 4, 8],
+    relatedProductSkus: [],
     manifestoSections: [],
     looks: [],
     processSections: [

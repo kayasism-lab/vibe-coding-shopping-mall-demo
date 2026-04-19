@@ -1,4 +1,5 @@
 import React from "react";
+import "../AdminImageUrlField.css";
 
 function EditorialImageField({
   label,
@@ -31,12 +32,14 @@ function EditorialImageField({
         </button>
       </div>
       {value.trim() ? (
-        <img
-          alt={previewAlt}
-          className="admin-page__url-preview"
-          loading="lazy"
-          src={value.trim()}
-        />
+        <div className="admin-image-url-field__preview-box">
+          <img
+            alt={previewAlt}
+            className="admin-page__url-preview admin-image-url-field__preview-img"
+            loading="lazy"
+            src={value.trim()}
+          />
+        </div>
       ) : null}
     </label>
   );

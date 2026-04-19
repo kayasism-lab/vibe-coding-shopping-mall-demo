@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { editorialHomeOrder, fallbackEditorials } from "../data/editorials";
+import { fallbackEditorials } from "../data/editorials";
 import { API_BASE_URL, getAuthorizationHeader } from "../utils/auth";
 
 const EDITORIALS_API_URL = `${API_BASE_URL}/api/editorials`;
@@ -42,6 +42,7 @@ const normalizeEditorial = (item) => ({
   ...item,
   _id: item._id || item.id || item.slug,
   slug: String(item.slug || "").trim(),
+  homeOrder: Number.isFinite(Number(item?.homeOrder)) ? Number(item.homeOrder) : 0,
   title: String(item.title || "").trim(),
   label: String(item.label || "").trim(),
   subtitle: String(item.subtitle || "").trim(),
@@ -49,6 +50,8 @@ const normalizeEditorial = (item) => ({
   status: String(item.status || "draft").trim(),
   heroImage: String(item.heroImage || "").trim(),
   heroImageAlt: String(item.heroImageAlt || "").trim(),
+  heroImagePosX: Number.isFinite(Number(item?.heroImagePosX)) ? Number(item.heroImagePosX) : 50,
+  heroImagePosY: Number.isFinite(Number(item?.heroImagePosY)) ? Number(item.heroImagePosY) : 50,
   intro: String(item.intro || "").trim(),
   eventBlocks: normalizeEventBlocks(item.eventBlocks),
   closingCtaLabel: String(item.closingCtaLabel || "").trim(),
@@ -104,8 +107,17 @@ export function EditorialProvider({ children }) {
   );
 
   const getHomeEditorials = useCallback(() => {
-    const bySlug = new Map(editorials.map((item) => [item.slug, item]));
-    return editorialHomeOrder.map((slug) => bySlug.get(slug)).filter(Boolean);
+    const published = editorials.filter((e) => e.status === "published");
+    return [...published].sort((a, b) => {
+      const ao = Number.isFinite(a.homeOrder) ? a.homeOrder : 9999;
+      const bo = Number.isFinite(b.homeOrder) ? b.homeOrder : 9999;
+      if (ao !== bo) {
+        return ao - bo;
+      }
+      const ad = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bd = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bd - ad;
+    });
   }, [editorials]);
 
   const requestAdminMutation = useCallback(async (url, method, payload) => {
@@ -188,6 +200,17 @@ export function EditorialProvider({ children }) {
     [requestAdminMutation]
   );
 
+  const reorderEditorials = useCallback(
+    async (orderedIds) => {
+      const list = await requestAdminMutation(`${EDITORIALS_API_URL}/admin/reorder`, "PUT", {
+        orderedIds,
+      });
+      await refreshEditorials();
+      return Array.isArray(list) ? list.map(normalizeEditorial) : [];
+    },
+    [requestAdminMutation, refreshEditorials]
+  );
+
   const value = useMemo(
     () => ({
       editorials,
@@ -200,6 +223,7 @@ export function EditorialProvider({ children }) {
       createEditorial,
       updateEditorial,
       deleteEditorial,
+      reorderEditorials,
     }),
     [
       createEditorial,
@@ -211,6 +235,7 @@ export function EditorialProvider({ children }) {
       getHomeEditorials,
       isLoading,
       refreshEditorials,
+      reorderEditorials,
       updateEditorial,
     ]
   );

@@ -40,15 +40,14 @@ export default function AdminImageUrlField({
         </div>
         {hasImage ? (
           <figure className="admin-image-url-field__figure">
-            <img
-              alt={previewAlt}
-              className="admin-page__url-preview"
-              loading="lazy"
-              src={value.trim()}
-            />
-            <figcaption className="admin-page__muted admin-image-url-field__caption">
-              미리보기 · URL을 바꾸거나 업로드하면 즉시 반영됩니다
-            </figcaption>
+            <div className="admin-image-url-field__preview-box">
+              <img
+                alt={previewAlt}
+                className="admin-page__url-preview admin-image-url-field__preview-img"
+                loading="lazy"
+                src={value.trim()}
+              />
+            </div>
           </figure>
         ) : (
           <p className="admin-page__muted admin-image-url-field__hint">

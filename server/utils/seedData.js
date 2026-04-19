@@ -104,6 +104,36 @@ const ensureSeedEditorials = async () => {
   console.log("기본 에디토리얼 데이터를 시드했습니다.");
 };
 
+/** 기존 DB 문서에 homeOrder가 없을 때 기본 슬러그 순서로 채움 (과거 하드코딩 순서와 동일) */
+const LEGACY_EDITORIAL_HOME_ORDER = ["behind-the-story", "spring-lookbook", "minimalism-of-light"];
+
+const ensureEditorialHomeOrder = async () => {
+  const needsBackfill = await Editorial.exists({
+    $or: [{ homeOrder: { $exists: false } }, { homeOrder: null }],
+  });
+
+  if (!needsBackfill) {
+    return;
+  }
+
+  for (let i = 0; i < LEGACY_EDITORIAL_HOME_ORDER.length; i++) {
+    await Editorial.updateOne({ slug: LEGACY_EDITORIAL_HOME_ORDER[i] }, { $set: { homeOrder: i } });
+  }
+
+  const remaining = await Editorial.find({ slug: { $nin: LEGACY_EDITORIAL_HOME_ORDER } })
+    .sort({ createdAt: 1 })
+    .select("_id")
+    .lean();
+
+  let next = LEGACY_EDITORIAL_HOME_ORDER.length;
+  for (const doc of remaining) {
+    await Editorial.updateOne({ _id: doc._id }, { $set: { homeOrder: next } });
+    next += 1;
+  }
+
+  console.log("에디토리얼 homeOrder 필드를 보정했습니다.");
+};
+
 const ensureEditorialClosingCta = async () => {
   const starterSlugs = ["minimalism-of-light", "spring-lookbook", "behind-the-story"];
 
@@ -116,6 +146,11 @@ const ensureEditorialClosingCta = async () => {
       },
     }
   );
+};
+
+/** 비하인드 스토리 에디토리얼은 Related Products 블록을 쓰지 않음 */
+const ensureBehindStoryNoRelatedProductSkus = async () => {
+  await Editorial.updateOne({ slug: "behind-the-story" }, { $set: { relatedProductSkus: [] } });
 };
 
 const ensureAdminUser = async () => {
@@ -347,7 +382,9 @@ const ensureSeedData = async () => {
   await ensureProductCategory2();
   await ensureProductMainSelectionOrder();
   await ensureSeedEditorials();
+  await ensureEditorialHomeOrder();
   await ensureEditorialClosingCta();
+  await ensureBehindStoryNoRelatedProductSkus();
   await ensureAdminUser();
   const customers = await ensureSampleCustomers();
   await ensureDefaultAddresses();

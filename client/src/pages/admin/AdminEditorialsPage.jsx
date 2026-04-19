@@ -1,32 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { editorialHomeOrder } from "../../data/editorials";
 import { useEditorials } from "../../context/EditorialContext";
 import "./AdminPages.css";
 
-const sortEditorialsByHomeOrder = (items) => {
-  const orderMap = new Map(editorialHomeOrder.map((slug, index) => [slug, index]));
-  return [...items].sort((first, second) => {
-    const firstOrder = orderMap.has(first.slug) ? orderMap.get(first.slug) : Number.MAX_SAFE_INTEGER;
-    const secondOrder = orderMap.has(second.slug) ? orderMap.get(second.slug) : Number.MAX_SAFE_INTEGER;
-    if (firstOrder !== secondOrder) {
-      return firstOrder - secondOrder;
-    }
-    return first.title.localeCompare(second.title, "ko");
-  });
-};
+function ChevronUpIcon() {
+  return (
+    <svg className="admin-editorials-order__icon" viewBox="0 0 24 24" aria-hidden>
+      <path fill="currentColor" d="M12 6.4 18.35 16H5.65L12 6.4z" />
+    </svg>
+  );
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg className="admin-editorials-order__icon" viewBox="0 0 24 24" aria-hidden>
+      <path fill="currentColor" d="M12 17.6 5.65 8h12.7L12 17.6z" />
+    </svg>
+  );
+}
 
 function AdminEditorialsPage() {
-  const { deleteEditorial, fetchAdminEditorials } = useEditorials();
+  const { deleteEditorial, fetchAdminEditorials, reorderEditorials } = useEditorials();
   const [items, setItems] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [reorderBusy, setReorderBusy] = useState(false);
+  const [flashRowIds, setFlashRowIds] = useState(() => new Set());
+  const flashClearRef = useRef(null);
 
   useEffect(() => {
     const run = async () => {
       try {
         setIsLoading(true);
-        setItems(sortEditorialsByHomeOrder(await fetchAdminEditorials()));
+        setItems(await fetchAdminEditorials());
         setError("");
       } catch (loadError) {
         setError(loadError.message || "에디토리얼 목록을 불러오지 못했습니다.");
@@ -38,13 +44,56 @@ function AdminEditorialsPage() {
     void run();
   }, [fetchAdminEditorials]);
 
+  useEffect(() => {
+    return () => {
+      if (flashClearRef.current) {
+        window.clearTimeout(flashClearRef.current);
+      }
+    };
+  }, []);
+
   const handleDelete = async (id) => {
     if (!window.confirm("이 에디토리얼을 삭제하시겠습니까?")) {
       return;
     }
 
     await deleteEditorial(id);
-    setItems((current) => sortEditorialsByHomeOrder(current.filter((item) => item._id !== id)));
+    setItems((current) => current.filter((item) => item._id !== id));
+  };
+
+  const handleMove = async (index, delta) => {
+    const nextIndex = index + delta;
+    if (nextIndex < 0 || nextIndex >= items.length || reorderBusy) {
+      return;
+    }
+
+    const idMoving = String(items[index]._id);
+    const idOther = String(items[nextIndex]._id);
+
+    const previous = items;
+    const next = [...items];
+    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+    setItems(next);
+    setReorderBusy(true);
+    setError("");
+
+    try {
+      const updated = await reorderEditorials(next.map((item) => item._id));
+      setItems(updated);
+      if (flashClearRef.current) {
+        window.clearTimeout(flashClearRef.current);
+      }
+      setFlashRowIds(new Set([idMoving, idOther]));
+      flashClearRef.current = window.setTimeout(() => {
+        setFlashRowIds(new Set());
+        flashClearRef.current = null;
+      }, 720);
+    } catch (reorderError) {
+      setError(reorderError.message || "순서 저장에 실패했습니다.");
+      setItems(previous);
+    } finally {
+      setReorderBusy(false);
+    }
   };
 
   return (
@@ -66,9 +115,10 @@ function AdminEditorialsPage() {
         </div>
 
         <div style={{ overflowX: "auto" }}>
-          <table className="admin-page__table">
+          <table className="admin-page__table admin-page__table--editorials">
             <thead>
               <tr>
+                <th className="admin-page__table--editorials__col-order">순서</th>
                 <th>제목</th>
                 <th>포맷</th>
                 <th>상태</th>
@@ -77,8 +127,34 @@ function AdminEditorialsPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item._id}>
+              {items.map((item, index) => (
+                <tr
+                  key={item._id}
+                  className={flashRowIds.has(String(item._id)) ? "admin-editorials-row--flash" : undefined}
+                >
+                  <td>
+                    <div className="admin-editorials-order" role="group" aria-label="순서 변경">
+                      <button
+                        aria-label="위로 이동"
+                        className="admin-editorials-order__seg admin-editorials-order__seg--up"
+                        disabled={reorderBusy || index === 0}
+                        type="button"
+                        onClick={() => void handleMove(index, -1)}
+                      >
+                        <ChevronUpIcon />
+                      </button>
+                      <span className="admin-editorials-order__divider" aria-hidden />
+                      <button
+                        aria-label="아래로 이동"
+                        className="admin-editorials-order__seg admin-editorials-order__seg--down"
+                        disabled={reorderBusy || index === items.length - 1}
+                        type="button"
+                        onClick={() => void handleMove(index, 1)}
+                      >
+                        <ChevronDownIcon />
+                      </button>
+                    </div>
+                  </td>
                   <td>
                     <strong>{item.title}</strong>
                     <small>{item.subtitle}</small>

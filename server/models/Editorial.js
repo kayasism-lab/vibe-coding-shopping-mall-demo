@@ -63,8 +63,13 @@ const editorialSchema = new Schema(
     subtitle: { type: String, trim: true, default: "" },
     format: { type: String, required: true, enum: formatOptions },
     status: { type: String, required: true, enum: statusOptions, default: "draft" },
+    /** 홈·관리자 목록 노출 순서 (오름차순, 0부터) */
+    homeOrder: { type: Number, default: 0 },
     heroImage: { type: String, required: true, trim: true },
     heroImageAlt: { type: String, trim: true, default: "" },
+    /** 히어로 배경 `background-position` (0–100%, cover 기준) */
+    heroImagePosX: { type: Number, default: 50, min: 0, max: 100 },
+    heroImagePosY: { type: Number, default: 50, min: 0, max: 100 },
     intro: { type: String, trim: true, default: "" },
     eventBlocks: {
       type: [eventBlockSchema],
