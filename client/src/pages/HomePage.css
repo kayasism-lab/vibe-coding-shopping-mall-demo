@@ -6,6 +6,22 @@
     linear-gradient(180deg, var(--brand-surface) 0%, #efe8df 100%);
 }
 
+/* 1) 상단 메뉴: Shop by Mood(·category)와 동일 — max 1600 + 좌우 gutter */
+.home-page .store-header__main {
+  max-width: var(--brand-max-width);
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 18px var(--brand-space-gutter);
+  box-sizing: border-box;
+}
+
+@media (max-width: 860px) {
+  .home-page .store-header__main {
+    padding: 14px var(--brand-space-gutter-mobile);
+  }
+}
+
 .hero-section__link,
 .hero-section__controls button,
 .product-section__nav button,
@@ -15,11 +31,16 @@
   transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
 }
 
+/* 2) 히어로: 가로:세 = 4:2 (= 2:1) */
 .hero-section {
   position: relative;
-  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   max-width: var(--brand-max-width);
   margin: 0 auto;
+  aspect-ratio: 4 / 2;
+  min-height: 0;
   overflow: hidden;
   border-radius: 0 0 var(--brand-radius-card) var(--brand-radius-card);
 }
@@ -57,8 +78,11 @@
   position: relative;
   z-index: 1;
   display: flex;
-  min-height: 90vh;
+  box-sizing: border-box;
+  min-height: 0;
   max-width: 760px;
+  width: 100%;
+  margin-top: auto;
   flex-direction: column;
   justify-content: flex-end;
   padding: 0 32px 120px;
@@ -670,12 +694,7 @@
 }
 
 @media (max-width: 560px) {
-  .hero-section {
-    min-height: 78vh;
-  }
-
   .hero-section__content {
-    min-height: 78vh;
     padding-right: 16px;
     padding-bottom: 110px;
     padding-left: 16px;

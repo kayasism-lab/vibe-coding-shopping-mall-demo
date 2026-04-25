@@ -19,6 +19,23 @@ const sortProductsByNewest = (items) =>
     return secondCreatedAt - firstCreatedAt;
   });
 
+const clampDescriptionMargin = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return 0;
+  }
+  return Math.min(400, Math.max(0, Math.round(n)));
+};
+
+const CAPTION_POSITIONS = new Set(["top", "center", "bottom"]);
+
+const normalizeCaptionPosition = (value) => {
+  const pos = String(value || "")
+    .trim()
+    .toLowerCase();
+  return CAPTION_POSITIONS.has(pos) ? pos : "bottom";
+};
+
 const normalizeProduct = (product) => {
   const { id: _legacyId, ...rest } = product;
   const parsedMainSelectionOrder =
@@ -26,11 +43,26 @@ const normalizeProduct = (product) => {
       ? null
       : Number.parseInt(product.mainSelectionOrder, 10);
 
+  const descriptionImages = Array.isArray(product.descriptionImages)
+    ? product.descriptionImages
+        .filter((item) => item && String(item.url || "").trim())
+        .map((item) => ({
+          url: String(item.url || "").trim(),
+          marginTop: clampDescriptionMargin(item.marginTop),
+          marginRight: clampDescriptionMargin(item.marginRight),
+          marginBottom: clampDescriptionMargin(item.marginBottom),
+          marginLeft: clampDescriptionMargin(item.marginLeft),
+          caption: String(item.caption || "").trim().slice(0, 500),
+          captionPosition: normalizeCaptionPosition(item.captionPosition),
+        }))
+    : [];
+
   return {
     ...rest,
     sku: Number(product.sku ?? product.id),
     category2: product.category2 || "Women",
     details: Array.isArray(product.details) ? product.details : [],
+    descriptionImages,
     images: Array.isArray(product.images) ? product.images : [],
     colors: Array.isArray(product.colors) ? product.colors : [],
     sizes: Array.isArray(product.sizes) ? product.sizes : [],

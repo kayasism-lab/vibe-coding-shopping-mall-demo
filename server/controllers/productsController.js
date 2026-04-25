@@ -7,6 +7,7 @@ const productFields = [
   "price",
   "description",
   "details",
+  "descriptionImages",
   "image",
   "hoverImage",
   "images",
@@ -17,6 +18,17 @@ const productFields = [
   "category2",
   "mainSelectionOrder",
 ];
+
+const clampMarginPx = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return 0;
+  }
+  return Math.min(400, Math.max(0, Math.round(n)));
+};
+
+const CAPTION_MAX_LEN = 500;
+const CAPTION_POSITIONS = new Set(["top", "center", "bottom"]);
 
 const pickFields = (source, fields) =>
   fields.reduce((result, field) => {
@@ -46,6 +58,27 @@ const normalizeProductPayload = (payload) => {
     ? payload.sizes.map((size) => String(size).trim()).filter(Boolean)
     : [];
 
+  const descriptionImages = Array.isArray(payload.descriptionImages)
+    ? payload.descriptionImages
+        .map((row) => {
+          const pos = String(row?.captionPosition || "")
+            .trim()
+            .toLowerCase();
+          return {
+            url: String(row?.url || "").trim(),
+            marginTop: clampMarginPx(row?.marginTop),
+            marginRight: clampMarginPx(row?.marginRight),
+            marginBottom: clampMarginPx(row?.marginBottom),
+            marginLeft: clampMarginPx(row?.marginLeft),
+            caption: String(row?.caption || "")
+              .trim()
+              .slice(0, CAPTION_MAX_LEN),
+            captionPosition: CAPTION_POSITIONS.has(pos) ? pos : "bottom",
+          };
+        })
+        .filter((row) => row.url)
+    : [];
+
   const primaryImage = String(payload.image || images[0] || "").trim();
   const hoverImage = String(payload.hoverImage || images[1] || primaryImage).trim();
 
@@ -64,6 +97,7 @@ const normalizeProductPayload = (payload) => {
     category: String(payload.category || "").trim(),
     category2: String(payload.category2 || "").trim(),
     details,
+    descriptionImages,
     image: primaryImage,
     hoverImage,
     images: images.length > 0 ? images : [primaryImage].filter(Boolean),

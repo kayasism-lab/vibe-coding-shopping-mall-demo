@@ -20,6 +20,20 @@ const colorSchema = new Schema(
   { _id: false }
 );
 
+/** 상품 상세 — 기본 상세(불릿)와 추천 셀렉션 사이에 표시 (px 여백) */
+const productDescriptionImageSchema = new Schema(
+  {
+    url: { type: String, required: true, trim: true },
+    marginTop: { type: Number, default: 0, min: 0, max: 400 },
+    marginRight: { type: Number, default: 0, min: 0, max: 400 },
+    marginBottom: { type: Number, default: 0, min: 0, max: 400 },
+    marginLeft: { type: Number, default: 0, min: 0, max: 400 },
+    caption: { type: String, default: "", trim: true, maxlength: 500 },
+    captionPosition: { type: String, enum: ["top", "center", "bottom"], default: "bottom" },
+  },
+  { _id: false }
+);
+
 const productSchema = new Schema(
   {
     sku: {
@@ -46,6 +60,10 @@ const productSchema = new Schema(
     },
     details: {
       type: [String],
+      default: [],
+    },
+    descriptionImages: {
+      type: [productDescriptionImageSchema],
       default: [],
     },
     image: {

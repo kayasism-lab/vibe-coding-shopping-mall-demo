@@ -405,11 +405,16 @@
 }
 
 .admin-page__section-header--form {
-  padding: 0 24px 12px;
+  padding: 16px 24px 14px;
   border: none;
   border-radius: 0;
   background: #fff;
   box-shadow: none;
+}
+
+/* 폼 섹션 제목 행(h2+추가 버튼)과 본문 박스 사이 간격 */
+.admin-page__form-section .admin-page__section-header--form + .admin-page__form-body {
+  padding-top: 12px;
 }
 
 .admin-page__section-header h2,

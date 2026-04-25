@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useProducts } from "../../context/ProductContext";
+import AdminImageUrlField from "../../components/admin/AdminImageUrlField";
 import { getCloudinaryEnv, openCloudinaryUploadWidget } from "../../utils/cloudinaryWidget";
 import "./AdminPages.css";
 
@@ -14,6 +15,28 @@ const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
 
 const newRowId = () =>
   globalThis.crypto?.randomUUID?.() ?? `r-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+const createDescriptionImageRow = (item = null) => ({
+  id: newRowId(),
+  url: item && item.url != null ? String(item.url) : "",
+  marginTop: item && item.marginTop != null ? String(item.marginTop) : "0",
+  marginRight: item && item.marginRight != null ? String(item.marginRight) : "0",
+  marginBottom: item && item.marginBottom != null ? String(item.marginBottom) : "0",
+  marginLeft: item && item.marginLeft != null ? String(item.marginLeft) : "0",
+  caption: item && item.caption != null ? String(item.caption) : "",
+  captionPosition:
+    item && item.captionPosition != null && ["top", "center", "bottom"].includes(String(item.captionPosition))
+      ? String(item.captionPosition)
+      : "bottom",
+});
+
+const clampFormMargin = (value) => {
+  const n = Number.parseInt(String(value ?? "").trim(), 10);
+  if (!Number.isFinite(n)) {
+    return 0;
+  }
+  return Math.min(400, Math.max(0, n));
+};
 
 const createDefaultForm = () => ({
   name: "",
@@ -88,9 +111,17 @@ function AdminProductFormContent({ isEditing, product }) {
     }
     return [{ id: newRowId(), url: "" }];
   });
+  const [descriptionImageRows, setDescriptionImageRows] = useState(() => {
+    if (product?.descriptionImages?.length) {
+      return product.descriptionImages.map((item) => createDescriptionImageRow(item));
+    }
+    return [];
+  });
   const [selectedSizes, setSelectedSizes] = useState(() => product?.sizes || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [cloudinaryBusy, setCloudinaryBusy] = useState(false);
   const [cloudinaryError, setCloudinaryError] = useState("");
   const fieldRefs = useRef({});
@@ -164,6 +195,19 @@ function AdminProductFormContent({ isEditing, product }) {
     mainSelectionOrder: formData.isMainSelection
       ? Number.parseInt(formData.mainSelectionOrder, 10)
       : null,
+    descriptionImages: descriptionImageRows
+      .filter((row) => row.url.trim())
+      .map((row) => ({
+        url: row.url.trim(),
+        marginTop: clampFormMargin(row.marginTop),
+        marginRight: clampFormMargin(row.marginRight),
+        marginBottom: clampFormMargin(row.marginBottom),
+        marginLeft: clampFormMargin(row.marginLeft),
+        caption: String(row.caption || "")
+          .trim()
+          .slice(0, 500),
+        captionPosition: ["top", "center", "bottom"].includes(row.captionPosition) ? row.captionPosition : "bottom",
+      })),
   });
 
   const validateRequiredFields = () => {
@@ -203,7 +247,7 @@ function AdminProductFormContent({ isEditing, product }) {
     }
 
     if (normalizedImages.length === 0) {
-      return { field: "imageList-0", message: "이미지 목록을 한 개 이상 입력해주세요." };
+      return { field: "imageList-0", message: "보조 이미지 목록을 한 개 이상 입력해주세요." };
     }
 
     if (
@@ -252,17 +296,29 @@ function AdminProductFormContent({ isEditing, product }) {
     setIsSubmitting(false);
   };
 
-  const handleDelete = async () => {
+  const closeDeleteModal = () => {
+    if (isDeleting) {
+      return;
+    }
+    setShowDeleteConfirm(false);
+  };
+
+  const handleConfirmDelete = async () => {
     if (!product) {
       return;
     }
 
+    setIsDeleting(true);
+    setSubmitError("");
+
     try {
-      setSubmitError("");
       await deleteProduct(product.sku);
+      setShowDeleteConfirm(false);
       navigate("/admin/products");
     } catch (error) {
       setSubmitError(error.message || "상품 삭제에 실패했습니다.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -283,6 +339,27 @@ function AdminProductFormContent({ isEditing, product }) {
       </header>
 
       <form className="admin-page__form" onSubmit={handleSubmit}>
+        <div className="admin-page__form-actions admin-page__form-actions--top">
+          <div className="admin-page__form-actions__messages">
+            {submitError ? <p className="admin-page__pagination-error">{submitError}</p> : null}
+          </div>
+          {isEditing ? (
+            <button
+              className="admin-page__button--danger"
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              삭제
+            </button>
+          ) : null}
+          <Link className="admin-page__button--ghost" to="/admin/products">
+            취소
+          </Link>
+          <button className="admin-page__button" disabled={isSubmitting} type="submit">
+            {isSubmitting ? "저장 중..." : isEditing ? "변경사항 저장" : "상품 생성"}
+          </button>
+        </div>
+
         <section className="admin-page__form-section">
           <div className="admin-page__section-header admin-page__section-header--form">
             <h2>기본 정보</h2>
@@ -548,7 +625,7 @@ function AdminProductFormContent({ isEditing, product }) {
 
         <section className="admin-page__form-section">
           <div className="admin-page__section-header admin-page__section-header--form">
-            <h2>상세 정보</h2>
+            <h2>상품 요약</h2>
             <button
               className="admin-page__button--ghost"
               type="button"
@@ -664,13 +741,13 @@ function AdminProductFormContent({ isEditing, product }) {
 
         <section className="admin-page__form-section">
           <div className="admin-page__section-header admin-page__section-header--form">
-            <h2>이미지 목록</h2>
+            <h2>보조 이미지 목록</h2>
             <button
               className="admin-page__button--ghost"
               type="button"
               onClick={() => setImageRows((rows) => [...rows, { id: newRowId(), url: "" }])}
             >
-              이미지 URL 추가
+              이미지 추가
             </button>
           </div>
           <div className="admin-page__form-body">
@@ -742,21 +819,208 @@ function AdminProductFormContent({ isEditing, product }) {
           </div>
         </section>
 
-        <div className="admin-page__form-actions">
-          {submitError ? <p className="admin-page__muted">{submitError}</p> : null}
-          {isEditing ? (
-            <button className="admin-page__button--danger" type="button" onClick={handleDelete}>
-              삭제
+        <section className="admin-page__form-section">
+          <div className="admin-page__section-header admin-page__section-header--form">
+            <h2>상품설명 이미지</h2>
+            <button
+              className="admin-page__button--ghost"
+              type="button"
+              onClick={() => setDescriptionImageRows((rows) => [...rows, createDescriptionImageRow()])}
+            >
+              이미지 추가
             </button>
-          ) : null}
-          <Link className="admin-page__button--ghost" to="/admin/products">
-            취소
-          </Link>
-          <button className="admin-page__button" disabled={isSubmitting} type="submit">
-            {isSubmitting ? "저장 중..." : isEditing ? "변경사항 저장" : "상품 생성"}
-          </button>
-        </div>
+          </div>
+          <div className="admin-page__form-body">
+            {descriptionImageRows.length === 0 ? (
+              <p className="admin-page__muted" style={{ marginTop: 0 }}>
+                &quot;이미지 추가&quot;로 복수 이미지를 등록할 수 있습니다. 스토어에서는 갤러리 아래 왼쪽 열에 순서대로
+                표시되며, 캡션(선택)은 이미지 위에만 덮어씁니다. Cloudinary 업로드·여백(px)을 지정할 수 있습니다.
+              </p>
+            ) : null}
+            {descriptionImageRows.map((row, index) => (
+              <div
+                className="admin-page__panel"
+                key={row.id}
+                style={{ marginBottom: 20, padding: "16px 18px" }}
+              >
+                <div
+                  className="admin-page__section-header admin-page__section-header--plain"
+                  style={{ marginBottom: 12 }}
+                >
+                  <h3 className="admin-page__title" style={{ fontSize: "1rem", margin: 0 }}>
+                    이미지 {index + 1}
+                  </h3>
+                  <button
+                    className="admin-page__button admin-page__button--ghost"
+                    type="button"
+                    onClick={() => setDescriptionImageRows((rows) => rows.filter((r) => r.id !== row.id))}
+                  >
+                    삭제
+                  </button>
+                </div>
+                <AdminImageUrlField
+                  cloudinaryDisabled={!cloudinaryEnv.ready}
+                  label="이미지 URL"
+                  previewAlt={`상품 설명 이미지 ${index + 1}`}
+                  value={row.url}
+                  onChange={(url) =>
+                    setDescriptionImageRows((rows) =>
+                      rows.map((r) => (r.id === row.id ? { ...r, url } : r))
+                    )
+                  }
+                  onCloudinaryClick={() =>
+                    runCloudinaryUpload((url) =>
+                      setDescriptionImageRows((rows) => rows.map((r) => (r.id === row.id ? { ...r, url } : r)))
+                    )
+                  }
+                />
+                <label className="admin-page__field" style={{ marginTop: 12 }}>
+                  <span>이미지 위 캡션 (선택, 비우면 표시 안 함)</span>
+                  <textarea
+                    className="admin-page__input"
+                    maxLength={500}
+                    rows={2}
+                    value={row.caption}
+                    onChange={(event) =>
+                      setDescriptionImageRows((rows) =>
+                        rows.map((r) => (r.id === row.id ? { ...r, caption: event.target.value } : r))
+                      )
+                    }
+                  />
+                </label>
+                <label className="admin-page__field" style={{ marginTop: 8 }}>
+                  <span>캡션 위치</span>
+                  <select
+                    className="admin-page__input"
+                    value={row.captionPosition}
+                    onChange={(event) =>
+                      setDescriptionImageRows((rows) =>
+                        rows.map((r) => (r.id === row.id ? { ...r, captionPosition: event.target.value } : r))
+                      )
+                    }
+                  >
+                    <option value="bottom">하단</option>
+                    <option value="center">중앙</option>
+                    <option value="top">상단</option>
+                  </select>
+                </label>
+                <div
+                  className="admin-page__form-grid"
+                  style={{ marginTop: 12, gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}
+                >
+                  <label className="admin-page__field">
+                    <span>위 (px)</span>
+                    <input
+                      className="admin-page__input"
+                      inputMode="numeric"
+                      min={0}
+                      max={400}
+                      type="number"
+                      value={row.marginTop}
+                      onChange={(event) =>
+                        setDescriptionImageRows((rows) =>
+                          rows.map((r) => (r.id === row.id ? { ...r, marginTop: event.target.value } : r))
+                        )
+                      }
+                    />
+                  </label>
+                  <label className="admin-page__field">
+                    <span>오른쪽 (px)</span>
+                    <input
+                      className="admin-page__input"
+                      inputMode="numeric"
+                      min={0}
+                      max={400}
+                      type="number"
+                      value={row.marginRight}
+                      onChange={(event) =>
+                        setDescriptionImageRows((rows) =>
+                          rows.map((r) => (r.id === row.id ? { ...r, marginRight: event.target.value } : r))
+                        )
+                      }
+                    />
+                  </label>
+                  <label className="admin-page__field">
+                    <span>아래 (px)</span>
+                    <input
+                      className="admin-page__input"
+                      inputMode="numeric"
+                      min={0}
+                      max={400}
+                      type="number"
+                      value={row.marginBottom}
+                      onChange={(event) =>
+                        setDescriptionImageRows((rows) =>
+                          rows.map((r) => (r.id === row.id ? { ...r, marginBottom: event.target.value } : r))
+                        )
+                      }
+                    />
+                  </label>
+                  <label className="admin-page__field">
+                    <span>왼쪽 (px)</span>
+                    <input
+                      className="admin-page__input"
+                      inputMode="numeric"
+                      min={0}
+                      max={400}
+                      type="number"
+                      value={row.marginLeft}
+                      onChange={(event) =>
+                        setDescriptionImageRows((rows) =>
+                          rows.map((r) => (r.id === row.id ? { ...r, marginLeft: event.target.value } : r))
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </form>
+
+      {showDeleteConfirm && product ? (
+        <div
+          className="admin-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="admin-product-form-delete-title"
+        >
+          <button
+            aria-label="삭제 확인 닫기"
+            className="admin-modal__backdrop"
+            type="button"
+            onClick={closeDeleteModal}
+          />
+          <div className="admin-modal__dialog admin-modal__dialog--confirm">
+            <div className="admin-modal__header">
+              <div>
+                <p className="admin-page__eyebrow">삭제 확인</p>
+                <h2 id="admin-product-form-delete-title">상품을 삭제할까요?</h2>
+              </div>
+              <button className="admin-modal__close" type="button" onClick={closeDeleteModal}>
+                ×
+              </button>
+            </div>
+            <p className="admin-page__subtitle">
+              &quot;{product.name}&quot; 상품(SKU: {product.sku})을 삭제합니다. 이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="admin-page__confirm-actions">
+              <button className="admin-page__button--ghost" type="button" onClick={closeDeleteModal}>
+                취소
+              </button>
+              <button
+                className="admin-page__button--danger"
+                disabled={isDeleting}
+                type="button"
+                onClick={() => void handleConfirmDelete()}
+              >
+                {isDeleting ? "삭제 중..." : "삭제"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
