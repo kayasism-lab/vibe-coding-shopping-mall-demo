@@ -14,12 +14,12 @@
   --brand-space-gutter: 32px;
   --brand-space-gutter-mobile: 20px;
   --brand-max-width: 1600px;
-  /* Sticky store header(브랜딩+네비) 아래에 고정 콘텐츠가 멈출 오프셋 */
-  --store-sticky-top: 6rem;
+  /* Sticky store header(브랜딩+네비) 아래에 고정 콘텐츠가 멈출 오프셋. 노치/상단 safe-area 포함 */
+  --store-sticky-top: calc(6rem + env(safe-area-inset-top, 0px));
 }
 
 @media (max-width: 860px) {
   :root {
-    --store-sticky-top: 4.75rem;
+    --store-sticky-top: calc(4.75rem + env(safe-area-inset-top, 0px));
   }
 }

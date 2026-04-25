@@ -1,5 +1,6 @@
 .home-page {
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--brand-ink);
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 26%),
@@ -69,7 +70,7 @@
   margin-top: auto;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 32px 120px;
+  padding: 0 32px calc(120px + env(safe-area-inset-bottom, 0));
   color: #fff;
 }
 
@@ -132,7 +133,7 @@
 
 .hero-section__controls {
   position: absolute;
-  bottom: 36px;
+  bottom: calc(36px + env(safe-area-inset-bottom, 0));
   left: 50%;
   z-index: 1;
   display: flex;
@@ -520,7 +521,7 @@
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.7);
   box-sizing: border-box;
-  font-size: 15px;
+  font-size: 1rem;
 }
 
 .newsletter-form button {
@@ -612,7 +613,7 @@
   }
 
   .hero-section__content {
-    padding-bottom: 132px;
+    padding-bottom: calc(132px + env(safe-area-inset-bottom, 0));
   }
 
   .hero-section__content h2 {
@@ -632,7 +633,7 @@
 @media (max-width: 560px) {
   .hero-section__content {
     padding-right: 16px;
-    padding-bottom: 110px;
+    padding-bottom: calc(110px + env(safe-area-inset-bottom, 0));
     padding-left: 16px;
   }
 
@@ -642,7 +643,7 @@
   }
 
   .hero-section__controls {
-    bottom: 20px;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0));
     gap: 6px;
   }
 

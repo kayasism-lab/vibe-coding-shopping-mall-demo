@@ -1,5 +1,5 @@
 .search-page {
-  padding: 48px 0 72px;
+  padding: 48px 0 calc(72px + env(safe-area-inset-bottom, 0));
 }
 
 .search-page__hero {
@@ -54,6 +54,7 @@
   box-sizing: border-box;
   color: #111827;
   font: inherit;
+  font-size: 1rem;
 }
 
 .search-page__searchbar input::placeholder {
@@ -205,7 +206,7 @@
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.95);
   font: inherit;
-  font-size: 16px;
+  font-size: 1rem;
   margin-left: auto;
   padding-right: 58px;
   appearance: none;
@@ -282,6 +283,7 @@
   background: rgba(255, 255, 255, 0.95);
   cursor: pointer;
   font: inherit;
+  font-size: 1rem;
 }
 
 .search-page__pagination button.is-active {
@@ -295,7 +297,7 @@
 }
 
 .wishlist-page {
-  padding: 48px 0 72px;
+  padding: 48px 0 calc(72px + env(safe-area-inset-bottom, 0));
 }
 
 .wishlist-page__header {
@@ -344,8 +346,9 @@
 .not-found-page {
   display: grid;
   min-height: calc(100vh - 89px);
+  min-height: calc(100dvh - 89px);
   place-items: center;
-  padding: 48px 24px 72px;
+  padding: 48px 24px calc(72px + env(safe-area-inset-bottom, 0));
 }
 
 .forgot-password-page__card form {
@@ -363,11 +366,12 @@
 }
 
 .forgot-password-page__card input {
-  padding: 15px 16px;
+  padding: 16px 16px;
   border: 1px solid rgba(17, 24, 39, 0.12);
   border-radius: 18px;
   background: #fff;
   font: inherit;
+  font-size: 1rem;
 }
 
 .forgot-password-page__actions,
@@ -406,7 +410,7 @@
 @media (max-width: 820px) {
   .search-page,
   .wishlist-page {
-    padding: 40px 0 56px;
+    padding: 40px 0 calc(56px + env(safe-area-inset-bottom, 0));
   }
 
   .search-page__grid,

@@ -1,5 +1,5 @@
 .product-page {
-  padding: 28px 0 88px;
+  padding: 28px 0 calc(88px + env(safe-area-inset-bottom, 0));
   box-sizing: border-box;
 }
 
@@ -190,6 +190,7 @@
   top: var(--store-sticky-top);
   align-self: start;
   max-height: min(calc(100vh - var(--store-sticky-top) - 1rem), 100%);
+  max-height: min(calc(100dvh - var(--store-sticky-top) - 1rem), 100%);
   overflow-y: auto;
 }
 
@@ -560,7 +561,7 @@
 
 @media (max-width: 900px) {
   .product-page {
-    padding: 24px 0 72px;
+    padding: 24px 0 calc(72px + env(safe-area-inset-bottom, 0));
   }
 
   .product-page__related-grid {

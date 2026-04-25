@@ -1,11 +1,12 @@
 .editorial-page {
   display: grid;
   gap: 32px;
-  padding: 0 0 80px;
+  padding: 0 0 calc(80px + env(safe-area-inset-bottom, 0));
 }
 
 .editorial-page__loading {
   min-height: 60vh;
+  min-height: 60dvh;
   display: grid;
   place-items: center;
 }
@@ -19,7 +20,7 @@
   align-items: end;
   margin-top: 0;
   padding-top: 48px;
-  padding-bottom: 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
   color: #fff;
   overflow: hidden;
   border-radius: var(--brand-radius-card);
@@ -304,7 +305,7 @@
   .editorial-hero {
     min-height: 420px;
     padding-top: 28px;
-    padding-bottom: 14px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0));
   }
 }
 

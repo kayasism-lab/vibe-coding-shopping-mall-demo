@@ -26,6 +26,7 @@
   position: sticky;
   top: 0;
   z-index: 40;
+  padding-top: env(safe-area-inset-top, 0);
   backdrop-filter: blur(14px);
   background: rgba(246, 241, 234, 0.88);
   border-bottom: 1px solid rgba(17, 24, 39, 0.08);
@@ -273,9 +274,12 @@
   right: 0;
   z-index: 61;
   display: flex;
+  box-sizing: border-box;
   height: 100vh;
+  height: 100dvh;
   width: min(100%, 420px);
   flex-direction: column;
+  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
   background: #fff;
   box-shadow: -8px 0 30px rgba(17, 24, 39, 0.16);
 }

@@ -7,8 +7,12 @@ body {
   margin: 0;
   min-width: 320px;
   overflow-x: clip;
+  /* iOS 입력 포커스 시 자동 확대 기준(16px) */
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }

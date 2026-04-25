@@ -1,5 +1,5 @@
 .cart-page {
-  padding: 32px 0 88px;
+  padding: 32px 0 calc(88px + env(safe-area-inset-bottom, 0));
 }
 
 .cart-page__header p {
@@ -151,7 +151,7 @@
 
 @media (max-width: 980px) {
   .cart-page {
-    padding: 24px 0 72px;
+    padding: 24px 0 calc(72px + env(safe-area-inset-bottom, 0));
   }
 
   .cart-page__layout,
