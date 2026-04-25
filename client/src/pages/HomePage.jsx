@@ -7,7 +7,6 @@ import StoreHeader from "../components/store/StoreHeader";
 import { useEditorials } from "../context/EditorialContext";
 import { useHomeContent } from "../context/HomeContentContext";
 import { useProducts } from "../context/ProductContext";
-import { formatKrw } from "../utils/currency";
 import { parseSkuText } from "../utils/editorialForm";
 import { refreshStoredSession } from "../utils/auth";
 import "./HomePage.css";
@@ -303,14 +302,15 @@ function HomePage({ user, onLogout }) {
                 />
               </div>
 
-              <div className="product-card__meta">
-                <span>{featuredProduct.homeBadge || featuredProduct.category}</span>
+              <div className="product-card__body product-card__body--featured">
+                <div className="product-card__meta">
+                  <span>{featuredProduct.homeBadge || featuredProduct.category}</span>
+                </div>
+                <h4 className="product-card__title">{featuredProduct.name}</h4>
+                <p className="product-card__support">
+                  {featuredProduct.homeSupport || featuredProduct.description}
+                </p>
               </div>
-              <h4 className="product-card__title">{featuredProduct.name}</h4>
-              <strong className="product-card__price">{formatKrw(featuredProduct.price)}</strong>
-              <p className="product-card__support">
-                {featuredProduct.homeSupport || featuredProduct.description}
-              </p>
             </Link>
           ) : null}
 
@@ -329,12 +329,15 @@ function HomePage({ user, onLogout }) {
                   />
                 </div>
 
-                <div className="product-card__meta">
-                  <span>{product.homeBadge || product.category}</span>
+                <div className="product-card__body product-card__body--standard">
+                  <div className="product-card__body-standard__inner">
+                    <div className="product-card__meta">
+                      <span>{product.homeBadge || product.category}</span>
+                    </div>
+                    <h4 className="product-card__title">{product.name}</h4>
+                  </div>
+                  <p className="product-card__support">{product.homeSupport || product.description}</p>
                 </div>
-                <h4 className="product-card__title">{product.name}</h4>
-                <strong className="product-card__price">{formatKrw(product.price)}</strong>
-                <p className="product-card__support">{product.homeSupport || product.description}</p>
               </Link>
             ))}
           </div>
