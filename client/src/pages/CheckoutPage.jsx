@@ -45,7 +45,7 @@ function CheckoutPage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="checkout-page">
+      <main className="checkout-page store-inner">
         <Link className="checkout-page__back-link" to="/cart">
           장바구니로 돌아가기
         </Link>

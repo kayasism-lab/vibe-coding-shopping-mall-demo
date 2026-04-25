@@ -120,7 +120,7 @@ export function ProductPageContent({ product, relatedProducts, user, onLogout })
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="product-page">
+      <main className="product-page store-inner">
         <div className="product-page__inner">
           <div className="product-page__breadcrumbs">
             <Link to="/">홈</Link>

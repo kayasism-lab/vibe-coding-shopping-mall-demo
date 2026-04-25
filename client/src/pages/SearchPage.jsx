@@ -136,7 +136,7 @@ function SearchPage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="search-page">
+      <main className="search-page store-inner">
         <section className="search-page__hero">
           <h1>원하는 스타일을 빠르게 찾아보세요</h1>
           <span>상품명, 카테고리, 상품 상세 정보를 포함해 콤마 기준 복수 조건 검색이 가능합니다.</span>

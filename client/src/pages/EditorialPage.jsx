@@ -49,7 +49,7 @@ function EditorialPage({ user, onLogout }) {
       <CartSidebar />
 
       <main className="editorial-page">
-        <section className="editorial-hero">
+        <section className="editorial-hero store-inner">
           <div
             aria-hidden
             className="editorial-hero__bg"

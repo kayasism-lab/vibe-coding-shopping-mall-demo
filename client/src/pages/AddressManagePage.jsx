@@ -172,7 +172,7 @@ function AddressManagePage({ user, onLogout, onUserUpdate }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="account-page">
+      <main className="account-page store-inner">
         <div className="account-page__heading">
           <p>내 계정</p>
           <h1>배송지 관리</h1>

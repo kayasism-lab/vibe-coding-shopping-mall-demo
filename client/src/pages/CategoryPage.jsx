@@ -79,14 +79,16 @@ function CategoryPage({ user, onLogout }) {
       <main className="category-page">
         <section className="category-page__hero" style={{ backgroundImage: `url(${heroImage})` }}>
           <div className="category-page__hero-overlay" />
-          <div className="category-page__hero-content">
-            <p>컬렉션</p>
-            <h1>{meta.title}</h1>
-            <span>{meta.description}</span>
+          <div className="store-inner category-page__hero-inner">
+            <div className="category-page__hero-content">
+              <p>컬렉션</p>
+              <h1>{meta.title}</h1>
+              <span>{meta.description}</span>
+            </div>
           </div>
         </section>
 
-        <section className="category-page__body">
+        <section className="category-page__body store-inner">
           <aside className="category-page__filters">
             <div className="category-page__filter-group">
               <h2>카테고리</h2>

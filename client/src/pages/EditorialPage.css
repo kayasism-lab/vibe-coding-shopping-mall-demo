@@ -10,15 +10,19 @@
   place-items: center;
 }
 
+/* padding 단축(padding: 48px 0)은 .store-inner의 좌우 gutter를 덮어쓰지 않도록 세로만 지정 */
 .editorial-hero {
   position: relative;
   isolation: isolate;
   min-height: 560px;
   display: grid;
   align-items: end;
-  padding: 48px;
+  margin-top: 0;
+  padding-top: 48px;
+  padding-bottom: 24px;
   color: #fff;
   overflow: hidden;
+  border-radius: var(--brand-radius-card);
 }
 
 .editorial-hero__bg {
@@ -41,9 +45,21 @@
   position: relative;
   z-index: 2;
   max-width: 720px;
+  /* 좌측은 스토어 gutter만 두고 추가 인셋 없음, 우측은 약간만 */
+  padding-right: clamp(3px, 0.625vw, 7px);
+  padding-left: 0;
+  box-sizing: border-box;
 }
 
-.editorial-hero__content p,
+.editorial-hero__content p {
+  margin: 0 0 14px;
+  font-size: 17px;
+  line-height: 1.7;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
 .editorial-page__eyebrow {
   margin: 0 0 14px;
   font-size: 12px;
@@ -70,8 +86,12 @@
 .editorial-page__related,
 .editorial-page__closing,
 .editorial-page__nav {
-  width: min(1120px, calc(100% - 48px));
+  max-width: var(--brand-max-width);
+  width: 100%;
   margin: 0 auto;
+  padding-right: var(--brand-space-gutter);
+  padding-left: var(--brand-space-gutter);
+  box-sizing: border-box;
 }
 
 .editorial-page__intro p {
@@ -85,8 +105,12 @@
 .editorial-page__stack,
 .editorial-page__gallery,
 .editorial-event-grid {
-  width: min(1120px, calc(100% - 48px));
+  max-width: var(--brand-max-width);
+  width: 100%;
   margin: 0 auto;
+  padding-right: var(--brand-space-gutter);
+  padding-left: var(--brand-space-gutter);
+  box-sizing: border-box;
 }
 
 .editorial-event-grid {
@@ -279,7 +303,8 @@
 
   .editorial-hero {
     min-height: 420px;
-    padding: 28px;
+    padding-top: 28px;
+    padding-bottom: 14px;
   }
 }
 
@@ -292,7 +317,8 @@
   .editorial-page__stack,
   .editorial-page__gallery,
   .editorial-event-grid {
-    width: min(100%, calc(100% - 24px));
+    padding-right: var(--brand-space-gutter-mobile);
+    padding-left: var(--brand-space-gutter-mobile);
   }
 
   .editorial-page__card img,

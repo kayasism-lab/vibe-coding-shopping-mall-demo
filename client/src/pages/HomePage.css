@@ -6,22 +6,6 @@
     linear-gradient(180deg, var(--brand-surface) 0%, #efe8df 100%);
 }
 
-/* 1) 상단 메뉴: Shop by Mood(·category)와 동일 — max 1600 + 좌우 gutter */
-.home-page .store-header__main {
-  max-width: var(--brand-max-width);
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding: 18px var(--brand-space-gutter);
-  box-sizing: border-box;
-}
-
-@media (max-width: 860px) {
-  .home-page .store-header__main {
-    padding: 14px var(--brand-space-gutter-mobile);
-  }
-}
-
 .hero-section__link,
 .hero-section__controls button,
 .product-section__nav button,
@@ -186,8 +170,7 @@
 .intro-strip,
 .category-section,
 .product-section,
-.newsletter-section,
-.store-footer {
+.newsletter-section {
   padding-right: var(--brand-space-gutter);
   padding-left: var(--brand-space-gutter);
 }
@@ -564,52 +547,6 @@
   line-height: 1.7;
 }
 
-.store-footer {
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: 32px;
-  padding-top: 72px;
-  padding-bottom: 72px;
-  color: #fff;
-  background: #171717;
-}
-
-.store-footer__brand span {
-  display: block;
-  margin-bottom: 18px;
-  font-size: 28px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.store-footer__brand p {
-  max-width: 420px;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.65);
-  line-height: 1.8;
-}
-
-.store-footer__links {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.store-footer__links h4 {
-  margin: 0 0 18px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.store-footer__links a {
-  display: block;
-  margin-bottom: 12px;
-  color: rgba(255, 255, 255, 0.68);
-}
-
 .hero-section__link:hover,
 .hero-section__controls button:hover,
 .product-section__nav button:hover,
@@ -625,7 +562,7 @@
 
   .product-showcase,
   .editorial-section,
-  .store-footer {
+  .store-footer__inner {
     grid-template-columns: 1fr;
   }
 }
@@ -654,8 +591,7 @@
   .intro-strip,
   .category-section,
   .product-section,
-  .newsletter-section,
-  .store-footer {
+  .newsletter-section {
     padding-right: var(--brand-space-gutter-mobile);
     padding-left: var(--brand-space-gutter-mobile);
   }

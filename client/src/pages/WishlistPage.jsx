@@ -21,7 +21,7 @@ function WishlistPage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="wishlist-page">
+      <main className="wishlist-page store-inner">
         <header className="wishlist-page__header">
           <div>
             <p>위시리스트</p>

@@ -46,7 +46,7 @@ function CheckoutFailPage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="checkout-success-page">
+      <main className="checkout-success-page store-inner">
         <div className="checkout-success-page__card">
           <p>결제 실패</p>
           <h1>결제가 완료되지 않았습니다.</h1>

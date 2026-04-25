@@ -32,7 +32,7 @@ function OrdersPage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="account-page">
+      <main className="account-page store-inner">
         <div className="account-page__heading">
           <p>내 주문</p>
           <h1>주문내역</h1>

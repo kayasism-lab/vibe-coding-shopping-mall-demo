@@ -57,7 +57,8 @@ function StoreHeader({ user, onLogout }) {
 
   return (
     <header className="store-header">
-      <div className="store-header__main">
+      <div className="store-inner">
+        <div className="store-header__main">
         <button
           aria-controls="store-mobile-panel"
           aria-expanded={isMobileMenuOpen}
@@ -144,12 +145,14 @@ function StoreHeader({ user, onLogout }) {
             {justAdded ? "+" : ""}
           </span>
         </button>
+        </div>
       </div>
 
       <div
         className={`store-mobile-panel ${isMobileMenuOpen ? "store-mobile-panel--open" : ""}`}
         id="store-mobile-panel"
       >
+        <div className="store-inner store-mobile-panel__inner">
         <StoreNavigation
           className="store-nav store-nav--mobile"
           onNavigate={() => setIsMobileMenuOpen(false)}
@@ -187,6 +190,7 @@ function StoreHeader({ user, onLogout }) {
               </button>
             </>
           )}
+        </div>
         </div>
       </div>
     </header>

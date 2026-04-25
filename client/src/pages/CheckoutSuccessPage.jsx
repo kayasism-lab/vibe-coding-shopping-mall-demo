@@ -81,7 +81,7 @@ function CheckoutSuccessPage({ user, onLogout }) {
       <div className="store-shell">
         <StoreHeader user={user} onLogout={onLogout} />
         <CartSidebar />
-        <main className="checkout-success-page">
+        <main className="checkout-success-page store-inner">
           <div className="checkout-success-page__card">
             <p>잘못된 접근</p>
             <h1>결제 확인 정보가 없습니다.</h1>
@@ -104,7 +104,7 @@ function CheckoutSuccessPage({ user, onLogout }) {
       <div className="store-shell">
         <StoreHeader user={user} onLogout={onLogout} />
         <CartSidebar />
-        <main className="checkout-success-page">
+        <main className="checkout-success-page store-inner">
           <div className="checkout-success-page__card">
             <p>결제 오류</p>
             <h1>결제 승인에 실패했습니다.</h1>
@@ -126,7 +126,7 @@ function CheckoutSuccessPage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="checkout-success-page">
+      <main className="checkout-success-page store-inner">
         <div className="checkout-success-page__card">
           {status === "loading" ? (
             <>

@@ -1,9 +1,5 @@
 .product-page {
-  max-width: var(--brand-max-width);
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding: 28px var(--brand-space-gutter) 88px;
+  padding: 28px 0 88px;
   box-sizing: border-box;
 }
 
@@ -564,7 +560,7 @@
 
 @media (max-width: 900px) {
   .product-page {
-    padding: 24px var(--brand-space-gutter-mobile) 72px;
+    padding: 24px 0 72px;
   }
 
   .product-page__related-grid {

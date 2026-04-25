@@ -101,7 +101,7 @@ function PasswordChangePage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="account-page">
+      <main className="account-page store-inner">
         <div className="account-page__heading">
           <p>내 계정</p>
           <h1>비밀번호 변경</h1>

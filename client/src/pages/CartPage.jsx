@@ -21,7 +21,7 @@ function CartPage({ user, onLogout }) {
       <StoreHeader user={user} onLogout={onLogout} />
       <CartSidebar />
 
-      <main className="cart-page">
+      <main className="cart-page store-inner">
         <div className="cart-page__header">
           <p>장바구니</p>
           <h1>{totalItems}개의 상품이 담겨 있습니다</h1>

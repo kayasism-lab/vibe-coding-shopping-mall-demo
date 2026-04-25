@@ -11,11 +11,16 @@
   background: linear-gradient(180deg, rgba(17, 24, 39, 0.18), rgba(17, 24, 39, 0.54));
 }
 
+.category-page__hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
 .category-page__hero-content {
   position: relative;
   z-index: 1;
   max-width: 700px;
-  padding: 140px 32px 64px;
+  padding: 140px 0 64px;
   color: #fff;
 }
 
@@ -44,7 +49,7 @@
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 32px;
-  padding: 42px 32px 88px;
+  padding: 42px 0 88px;
 }
 
 .category-page__filters {
@@ -195,11 +200,11 @@
 @media (max-width: 960px) {
   .category-page__body {
     grid-template-columns: 1fr;
-    padding: 32px 20px 72px;
+    padding: 32px 0 72px;
   }
 
   .category-page__hero-content {
-    padding: 132px 20px 52px;
+    padding: 132px 0 52px;
   }
 
   .category-page__products,
